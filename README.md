@@ -69,8 +69,6 @@ LexiMind uses only **public and properly licensed resources**, including:
 ---
 
 
-
-
 ### Contributors
 
 <!-- Table of contributors and their roles. First row: define responsibilities that are shared by the team. Then each row after that is: name of contributor, their role, and in the third column you will link to their contributions. If your project involves multiple repos, you will link to their contributions in all repos here. -->
@@ -183,7 +181,7 @@ Due to limited training resources and the large model size (possibly 7B–70B pa
 
 ---
 
-### Table X: Comparison of Low-Resource Training Strategies
+### Comparison of Low-Resource Training Strategies
 
 | Strategy               | Memory Efficiency | Accuracy | Speed | Best For                        |
 |------------------------|-------------------|----------|-------|---------------------------------|
@@ -204,12 +202,12 @@ To improve training speed, we plan to adopt distributed training methods if mult
   - **Fully Sharded Data Parallel (FSDP)**
 
 
-#### Model serving and monitoring platforms
+# Model serving and monitoring platforms
 
 <!-- Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements,  and which optional "difficulty" points you are attempting. -->
+[fill the monitoriong here]
 
-#### Data pipeline
-# Data Pipeline Design
+# Data Pipeline
 
 This design addresses the requirements for persistent storage, offline data management and pipelines, online data management and pipelines, and online data simulation.
 
