@@ -86,7 +86,117 @@ Discuss: Value proposition: Your will propose a machine learning system that can
 <!-- Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements,  and which optional "difficulty" points you are attempting. -->
 
 #### Data pipeline
+# Data Pipeline Design
 
+This design addresses the requirements for persistent storage, offline data management and pipelines, online data management and pipelines, and online data simulation.
+
+## 1. Persistent Storage (Chameleon)
+
+**Technology:** Chameleon Block Storage (e.g., Cinder volumes).
+
+### Setup:
+- Provision a sufficiently large block storage volume on Chameleon.
+- Attach this volume to the virtual machine(s) designated for data processing, model training, and potentially hosting the vector database/data repositories.
+- Format and mount the volume (e.g., as `/mnt/persistent_data`).
+
+### Purpose:
+This mounted volume (`/mnt/persistent_data`) will serve as the central, persistent location for:
+- **Raw Data:** Original downloaded datasets (QA pairs, Coding pairs), cloned open-source repositories.
+- **Processed Data:** Cleaned and transformed data ready for fine-tuning (e.g., formatted JSONL/Parquet files).
+- **RAG Knowledge Base:** Chunked documents/code, vector embeddings/indices, metadata mapping.
+- **Model Artifacts:** Fine-tuned LLM weights, tokenizer files.
+- **Evaluation Artifacts:** Test sets, reference answers, evaluation script outputs (scores).
+- **Container Images:** Custom Docker images saved as tarballs (though a container registry is often preferable).
+- **Logs:** Persistent logs from ETL jobs or training runs.
+
+## 2. Offline Data Management & Pipeline (ETL for Fine-tuning & RAG)
+
+This pipeline focuses on ingesting, processing, and storing data needed for fine-tuning the LLM and populating the RAG knowledge base.
+
+### Data Sources:
+- **QA Datasets:** SQuAD 2.0, Natural Questions, TriviaQA, HotpotQA, OpenBookQA, DROP.
+- **Coding Pair Datasets:** CodeSearchNet, CoNaLa, Django Dataset, SPoC, APPS.
+- **Target Open-Source Repositories:** Specific GitHub repositories containing code and documentation (README files, markdown documentation, Wikis, etc.).
+
+### ETL Pipeline Steps:
+#### **Extract (E):**
+- **Download Datasets:** Write scripts (e.g., Python with `requests`, `huggingface datasets`) to download datasets.
+- **Clone Repositories:** Use `gitpython` to clone target repositories into `/mnt/persistent_data/raw/repositories/`.
+
+#### **Transform (T):**
+- **Standardize QA/Coding Data:**
+  - Parse raw datasets (JSON, CSV, etc.).
+  - Clean text data (normalize whitespace, handle special characters).
+  - Convert into a unified format suitable for fine-tuning (e.g., JSON Lines `{"prompt": "...", "completion": "..."}`).
+  - Store processed data in `/mnt/persistent_data/processed/finetuning_data/`.
+- **Process Repositories for RAG:**
+  - Identify relevant files (code, documentation, configuration files).
+  - Extract and parse code/documentation content.
+  - Chunk large documents and code files.
+  - Generate embeddings using a sentence transformer model.
+  - Store processed chunks & metadata in `/mnt/persistent_data/processed/rag_data/chunks/`.
+  - Build vector index using FAISS, storing it in `/mnt/persistent_data/processed/rag_data/vector_index/`.
+
+#### **Load (L):**
+- Fine-tuning data is ready in `/mnt/persistent_data/processed/finetuning_data/`.
+- RAG knowledge base is ready in `/mnt/persistent_data/processed/rag_data/`.
+- **Orchestration:** Simple Python scripts or workflow tools like Makefiles, Luigi, or Airflow.
+
+## 3. Online Data Management & Pipeline (Inference)
+
+This pipeline handles incoming user queries in real-time using the fine-tuned LLM and the RAG system.
+
+### Data Source:
+- Real-time user queries arriving via the chatbot's API endpoint.
+
+### Pipeline Steps:
+1. **Receive & Pre-process Query:** Accept user input, clean text.
+2. **Generate Query Embedding:** Use the same embedding model as offline processing.
+3. **Retrieve Relevant Context (RAG):**
+   - Query FAISS Vector Index.
+   - Fetch the top-k similar chunks.
+   - Retrieve text and metadata from the Chunk Store.
+4. **Construct Prompt:** Format query and retrieved chunks for the LLM.
+5. **LLM Inference:** Generate a response using the fine-tuned model.
+6. **Post-process Response:** Clean output, optionally cite sources.
+7. **Return Response:** Send the formatted answer back to the user.
+
+### Data Storage (Online Access):
+- The Vector Index and Chunk/Metadata Store are loaded into memory or accessed efficiently.
+- The fine-tuned LLM model weights are loaded into GPU/CPU memory.
+
+## 4. Online Data Simulation
+
+### **Purpose:**
+To generate realistic traffic for load testing the online inference pipeline and evaluating system performance (latency, concurrency).
+
+### **Script (simulate_traffic.py):**
+#### **Query Generation:**
+- Use query templates like:
+  - "How does the function `{func_name}` work?"
+  - "Explain the `{class_name}` class in `{file_path}`."
+  - "Summarize the file `{file_path}`."
+- Populate templates using extracted function/class names.
+- Include adversarial or out-of-scope questions for robustness.
+- Adapt portions of QA datasets to codebase queries.
+
+#### **Traffic Pattern:**
+- Use `asyncio` and `aiohttp` for asynchronous request generation.
+- Control request rate (e.g., 1 req/sec to 100 req/sec for testing limits).
+- Simulate multiple concurrent users.
+- Introduce randomness in query selection and timing.
+- Run from a separate VM or container within the Chameleon environment.
+
+### **Data Characteristics:**
+- **Content:** Questions covering code understanding, API usage, module interaction.
+- **Format:** Plain text strings sent via HTTP POST/GET requests.
+- **Volume:** Configurable rate (e.g., 1 req/sec to 100 req/sec).
+- **Variety:** Mix of targeted questions and open-ended exploratory questions.
+
+### **Output:**
+- Log response times, status codes, and response latencies for performance analysis.
+
+<img src="assets/data_pipeline.png" width="600"/>
 <!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which optional "difficulty" points you are attempting. -->
 
 #### Continuous X
