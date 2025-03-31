@@ -52,6 +52,8 @@ Discuss: Value proposition: Your will propose a machine learning system that can
 ### Detailed design plan
 
 <!-- In each section, you should describe (1) your strategy, (2) the relevant parts of the diagram, (3) justification for your strategy, (4) relate back to lecture material, (5) include specific numbers. -->
+<img src="assets/train_diagram.jpg" width="600"/>
+
 
 #### Model training and training platforms
 
