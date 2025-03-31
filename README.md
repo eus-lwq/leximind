@@ -196,7 +196,7 @@ To generate realistic traffic for load testing the online inference pipeline and
 ### **Output:**
 - Log response times, status codes, and response latencies for performance analysis.
 
-<img src="assets/data_pipeline.png" width="600"/>
+<img src="assets/data pipeline.png" width="600"/>
 <!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which optional "difficulty" points you are attempting. -->
 
 #### Continuous X
