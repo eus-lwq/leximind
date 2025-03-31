@@ -7,7 +7,7 @@ Discuss: Value proposition: Your will propose a machine learning system that can
 
 LexiMind is a machine learning system that helps developers better understand both technical documentation and codebases in open-source repositories.
 
-It combines a fine-tuned large language model with Retrieval-Augmented Generation (RAG) to deliver interactive, context-aware answers.
+It combines a fine-tuned large language model with Retrieval-Augmented Generation (RAG) to deliver interactive, context-aware answers.  -->
 
 ---
 
