@@ -132,6 +132,8 @@ LexiMind uses only **public and properly licensed resources**, including:
 
 <!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, and which optional "difficulty" points you are attempting. -->
 
+<img src="assets/train_diagram.jpg"/>
+
 Due to limited training resources and the large model size (possibly 7B–70B parameters), we adopt low-resource training strategies and experiment with various parameters (e.g., LoRA alpha size, up/down matrix size, accumulation step size, precision level, etc.).
 
 ### Mixed Precision Training (FP16 + FP32)
