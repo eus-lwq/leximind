@@ -87,9 +87,9 @@ LexiMind uses only **public and properly licensed resources**, including:
 ### System diagram
 
 <!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. Must include: all the hardware, all the containers/software platforms, all the models, all the data. -->
-[graph here]
-### Summary of outside materials
+<img src="assets/system_diagram_v1.png"/>
 
+### Summary of outside materials
 <!-- In a table, a row for each dataset, foundation model. Name of data/model, conditions under which it was created (ideally with links/references), conditions under which it may be used. -->
 ## QA Pair Dataset
 
@@ -114,14 +114,6 @@ LexiMind uses only **public and properly licensed resources**, including:
 | **APPS (Automated Programming Progress Standard)** | 10,000 problems | [APPS](https://github.com/hendrycks/apps) | UC Berkeley | A dataset of coding problems and solutions, designed to evaluate the problem-solving abilities of AI systems in competitive programming. | Problem statement: "Write a function to check if a number is prime." Solution: Python function implementing prime check logic. | Challenges models with diverse and complex programming tasks. | Collected from open-source competitive programming platforms; includes problems of varying difficulty. | Available under the MIT License. |
 
 
-|              | How it was created | Conditions of use |
-|--------------|--------------------|-------------------|
-| Data set 1   |                    |                   |
-| Data set 2   |                    |                   |
-| Base model 1 |                    |                   |
-| etc          |                    |                   |
-
-
 ### Summary of infrastructure requirements
 
 <!-- Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`), how much/when, justification. Include compute, floating IPs, persistent storage. The table below shows an example, it is not a recommendation. -->
@@ -133,15 +125,84 @@ LexiMind uses only **public and properly licensed resources**, including:
 | Floating IPs    | 1 for entire project duration, 1 for sporadic use |               |
 | etc             |                                                   |               |
 
-### Detailed design plan
+# Detailed design plan
 
 <!-- In each section, you should describe (1) your strategy, (2) the relevant parts of the diagram, (3) justification for your strategy, (4) relate back to lecture material, (5) include specific numbers. -->
-<img src="assets/train_diagram.jpg" width="600"/>
 
-
-#### Model training and training platforms
+## Model training and training platforms
 
 <!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, and which optional "difficulty" points you are attempting. -->
+
+Due to limited training resources and the large model size (possibly 7B–70B parameters), we adopt low-resource training strategies and experiment with various parameters (e.g., LoRA alpha size, up/down matrix size, accumulation step size, precision level, etc.).
+
+### Mixed Precision Training (FP16 + FP32)
+
+- **Why this approach:**  
+  Combines the benefits of FP16 (or BF16) and FP32 to balance efficiency and numerical stability.
+  
+- **Benefits:**
+  - Key operations (e.g., gradient updates) remain in FP32 to prevent underflow/overflow.
+  - Avoids accumulation of calculation errors common in low-precision training.
+
+- **Comparison to other approaches:**
+  - Compared to **FP16 training**, this method reduces numerical errors while keeping similar memory savings.
+  - Compared to **LoRA**, it doesn't reduce parameter updates but enables efficient full-model training.
+
+---
+
+### LoRA / QLoRA
+
+- **Why this approach:**  
+  Rather than updating all model weights, LoRA introduces trainable low-rank matrices to frozen pre-trained layers.
+
+- **Benefits:**
+  - Reduced memory usage.
+  - Fewer trainable parameters.
+
+- **Drawbacks:**
+  - May not achieve the same performance as full parameter training.
+
+- **Comparison to other approaches:**
+  - Compared to **full fine-tuning**, LoRA is more memory-efficient and faster but may underperform in capturing complex patterns.
+  - Compared to **Gradient Accumulation**, LoRA reduces memory use at the parameter level, whereas gradient accumulation targets batch-level memory usage.
+
+---
+
+### Gradient Accumulation
+
+- **Why this approach:**  
+  Enables training with larger effective batch sizes without increasing per-step memory requirements.
+
+- **Benefits:**
+  - **Better convergence:** Larger batches result in more stable gradient updates.
+  - **Memory-efficient:** Suitable for large model training on limited hardware.
+
+- **Comparison to other approaches:**
+  - Compared to **batch size reduction**, gradient accumulation maintains statistical benefits of large batches.
+  - Compared to **low precision training**, it doesn't speed up computation but helps reduce memory consumption.
+
+---
+
+### Table X: Comparison of Low-Resource Training Strategies
+
+| Strategy               | Memory Efficiency | Accuracy | Speed | Best For                        |
+|------------------------|-------------------|----------|-------|---------------------------------|
+| Mixed Precision        | Medium            | High     | High  | Stable full-model training      |
+| LoRA / QLoRA           | High              | Medium   | High  | Efficient partial fine-tuning   |
+| Gradient Accumulation  | Medium            | High     | Medium| Large batch size on low memory  |
+
+---
+
+## Distributed Training
+
+To improve training speed, we plan to adopt distributed training methods if multiple GPUs are available. We will:
+
+- Compare training performance on 1 GPU vs. multiple GPUs.
+- Evaluate the impact on training time and stability.
+- Experiment with:
+  - **Distributed Data Parallel (DDP)**
+  - **Fully Sharded Data Parallel (FSDP)**
+
 
 #### Model serving and monitoring platforms
 
@@ -261,8 +322,58 @@ To generate realistic traffic for load testing the online inference pipeline and
 <img src="assets/data pipeline.png" width="600"/>
 <!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which optional "difficulty" points you are attempting. -->
 
-#### Continuous X
-
+## Continuous X
 <!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which optional "difficulty" points you are attempting. -->
 
+<img src="assets/cicd_diagram.png"/>
+
+### 1. Scheduled Retraining & Automation
+According to prof fund's slides we should have a trigger mechanism to do the continuous training when some specific threshold is reached.
+A cron-based trigger (via Argo Workflows or Kubernetes CronJobs) initiates automated monthly model retraining
+Pipeline includes data ingestion, preprocessing, model retraining, and model optimization (e.g., pruning, quantization).
+Model artifacts are versioned and pushed into artifact storage (e.g., S3, MinIO).
+
+### 2. Integration & Validation
+The entire system (model + API service) is wrapped in a Docker container with Flask, orchestrated via Kubernetes (K8s).
+In staging, we run automated integration tests, including:
+- Inference accuracy tests
+- Latency and throughput benchmarks
+- Concurrency and load tests
+- Auto-release tests
+Results are compiled into an automated test report (HTML/JSON format) for review.
+
+### 3. Staged Deployment Strategy
+ We adopt a multi-tiered deployment to ensure stability and quality:
+- Staging:
+ Initial deployment for automated testing and validation.
+- Canary:
+A small portion of real traffic is routed to the new version.
+Online metrics are monitored (e.g., latency, error rate, user engagement).
+If performance meets predefined SLAs, the model is eligible for promotion.
+- Production:
+ Full rollout across all traffic after canary validation passes.
+
+### 4. Promotion Workflow
+Promotion from staging → canary is triggered automatically on test pass and human approval (optional).
+Promotion from canary → production is conditional on monitored KPIs and duration (e.g., stable for 24h).
+Canary fallback is enabled if performance degradation is detected.
+
+### 5. Infrastructure-as-Code Compliance
+All infrastructure, deployment, and configuration code is written in:
+Terraform (declarative IaC) or python-chi (imperative style),
+ Stored in Git and version-controlled,
+Deployed using ArgoCD for GitOps-style reconciliation,
+Avoiding any manual ClickOps or shell provisioning.
+
+### 6. Cloud-Native Architecture
+Immutable infrastructure: No manual changes; everything is defined in Git and rebuilt via CI/CD.
+Microservices architecture: Each component (model training, serving, testing, metrics collection) is a separate service communicating via APIs.
+Container-first: All components (training jobs, APIs, metrics tools) run in containers. No direct compute operations outside of orchestration.
+
+
+## Check for difficulty points:
+- Training: Training strategies for large models: If your training job does not easily fit on a low-end GPU, you will use the strategies discussed in this lesson to train your model. For your reports, you will conduct experiments and show measurements similar to those in the lab assignment, to evaluate the effect of these strategies.
+- Training: Use distributed training to increase velocity: If you have a medium-sized training job, how fast can you train your model? Include a discussion (backed up by experiment results!) of total model training time with one GPU vs. multiple GPUs of the same type, using the strategy (DDP, FSDP, and appropriate batch size) that makes the most sense given the size of your model. You will include a plot of training time vs. number of GPUs for each strategy under consideration. (if we are assigned to multiple GPU)
+- Production: Develop multiple options for serving: If you are using a model that benefits from using GPU for inference, you can get “extra difficulty points” by developing and evaluating optimized server-grade GPU, server-grade CPU, and on-device options for model serving, and comparing them with respect to performance and cost of deployment on a commercial cloud.
+- Production: Monitor for model degradation: After your model is deployed in production, monitor for degradation in the model output (by closing the feedback loop!). Make this available to engineers (e.g in a dashboard), and trigger automatic re-training with new, labeled, production data when this occurs.
 
