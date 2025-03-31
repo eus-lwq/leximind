@@ -118,10 +118,11 @@ LexiMind uses only **public and properly licensed resources**, including:
 
 | Requirement     | How many/when                                     | Justification |
 |-----------------|---------------------------------------------------|---------------|
-| `m1.medium` VMs | 3 for entire project duration                     | ...           |
-| `gpu_mi100`     | 4 hour block twice a week                         |               |
-| Floating IPs    | 1 for entire project duration, 1 for sporadic use |               |
-| etc             |                                                   |               |
+| `m1.medium` VMs | 3 for entire project duration                     | retrieval, API server, CI/CD pipeline components and monitoring tools |
+| `gpu_mi100`     | 4 hour block twice a week                         | Required for training     |
+| `gpu_rtx6000`   | 1 for entire project                              | Required for quick inferencing     |
+| Floating IPs    | 1 for entire project duration, 1 for extra use    | Required to expose the chatbot inference API endpoint to users   |
+| Persistent Storage |   200 GB                                       | Storage for dataset, pre-trained model etc    |
 
 # Detailed design plan
 
