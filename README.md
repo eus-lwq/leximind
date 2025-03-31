@@ -5,32 +5,72 @@
 Discuss: Value proposition: Your will propose a machine learning system that can be used in an existing business or service. (You should not propose a system in which a new business or service would be developed around the machine learning system.) Describe the value proposition for the machine learning system. What’s the (non-ML) status quo used in the business or service? What business metric are you going to be judged on? (Note that the “service” does not have to be for general users; you can propose a system for a science problem, for example.)
 -->
 
-We propose a machine learning system that helps developers better understand both technical documentation and codebases in open-source repositories. This chatbot uses a fine-tuned large language model, enhanced with Retrieval Augmented Generation, to provide interactive, context-aware answers to documentation and code-related questions.
-Today’s onboarding process for open-source contributors is difficult and fragmented. Developers often face challenges such as:
-Navigating large, unfamiliar codebases
 
+# 💡 LexiMind: AI Assistant for Open-Source Developers
 
-Understanding undocumented or sparsely documented logic
+LexiMind is a machine learning system that helps developers better understand both technical documentation and codebases in open-source repositories.
 
+It combines a fine-tuned large language model with **Retrieval-Augmented Generation (RAG)** to deliver interactive, context-aware answers.
 
-Mapping high-level design documents to actual code
+---
 
+## ❓ Problem
 
-Decoding how different modules and APIs interact
-Even when documentation exists, it may be outdated, incomplete, or not linked well to the actual implementation. Developers typically rely on trial-and-error, search, or asking maintainers.
-LexiMind is designed specifically for junior developers onboarding into existing open-source projects. By offering accurate, contextual, and structured answers about the codebase and its related documentation, LexiMind lowers the barrier to entry and accelerates contributors' productivity. It acts as an intelligent assistant capable of:
-Linking natural language queries to exact function definitions or related API modules
+Today’s onboarding process for open-source contributors is:
 
+- ❗ Hard to navigate large codebases  
+- ❗ Frustrating due to missing or outdated docs  
+- ❗ Confusing to map high-level designs to code  
+- ❗ Inefficient without linked explanations
 
-Bridging high-level documentation with low-level code
+Even when documentation exists, it may be:
 
+- Outdated  
+- Incomplete  
+- Unlinked from actual implementation
 
-Synthesizing information from multiple sources (e.g., code, issues, wiki pages, design docs) into coherent responses
+---
 
+## ✅ Solution: LexiMind
 
-By streamlining this learning process, the system helps maintain community engagement and facilitates healthier open-source ecosystems.
-To evaluate LexiMind, we combine automatic and human-centric metrics focused on both answer quality and practical impact. For language quality, we report BLEU, ROUGE, and METEOR scores against reference answers curated from real developer queries. Human evaluation further assesses the correctness, clarity, and informativeness of the generated responses. System-level performance is measured through median response latency and concurrency capacity under simulated usage. To capture real-world utility, we track developer productivity over a six-month period, specifically measuring the number of submitted deliverables and accepted pull requests by junior contributors using the system.
-LexiMind is built entirely on publicly available resources with appropriate licenses. It draws from open-source code repositories, project wikis, technical documentation, and academic papers that permit non-commercial use. All datasets and model outputs are intended strictly for academic research and open-source collaboration. Commercial use is explicitly excluded unless appropriate licensing is secured, and attribution will be maintained in accordance with the terms of the original sources.
+LexiMind is tailored for **junior developers** onboarding into open-source projects.
+
+It helps by:
+
+- 🔍 Linking natural language queries to relevant code or functions  
+- 🔗 Bridging high-level docs and low-level code  
+- 📚 Synthesizing knowledge from code, issues, design docs, and wikis
+
+🎯 Result: Developers onboard faster, understand better, and contribute with confidence.
+
+---
+
+## 📊 Evaluation Metrics
+
+We combine **automatic** and **human-centric** evaluations:
+
+| Category           | Metric / Method                                                  |
+|--------------------|------------------------------------------------------------------|
+| Language Quality   | BLEU, ROUGE, METEOR                                              |
+| Human Evaluation   | Correctness, Clarity, Informativeness                            |
+| System Performance | Median response time, concurrent usage tolerance                 |
+| Real-world Utility | PR submissions and acceptance rate by LexiMind-assisted devs     |
+
+---
+
+## 📂 Data & Licensing
+
+LexiMind uses only **public and properly licensed resources**, including:
+
+- Open-source code repositories  
+- Project wikis  
+- Technical documents  
+- Research papers (non-commercial use)
+
+> ⚠️ Commercial use is **not allowed** unless licensing is negotiated. All sources are properly attributed.
+
+---
+
 
 
 
