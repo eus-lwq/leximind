@@ -83,7 +83,7 @@ LexiMind uses only **public and properly licensed resources**, including:
 
 <!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. Must include: all the hardware, all the containers/software platforms, all the models, all the data. -->
 
-<img src="assets/system_diagram_v1.png"/>
+<img src="assets/system_diagram_v2.png"/>
 
 ### Summary of outside materials
 
