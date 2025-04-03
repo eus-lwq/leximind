@@ -320,9 +320,6 @@ This pipeline handles incoming user queries in real-time using the fine-tuned LL
 6. **Post-process Response:** Clean output, optionally cite sources.
 7. **Return Response:** Send the formatted answer back to the user.
 
-```sh
-
-```
 
 ### Data Storage (Online Access):
 
