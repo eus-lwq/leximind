@@ -1,0 +1,14 @@
+transformers
+datasets
+mlflow
+ray
+accelerate
+transformers==4.50.0
+datasets==3.2.0
+accelerate==1.2.1
+peft==0.15.0
+trl==0.9.6
+deepspeed
+bitsandbytes
+vllm
+flash-attn
