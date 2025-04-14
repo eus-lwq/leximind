@@ -26,3 +26,6 @@ sudo docker run --rm --gpus all ubuntu nvidia-smi
 # multiple gpu section
 sudo docker pull pytorch/pytorch:2.5.1-cuda12.4-cudnn9-devel
 sudo apt update; sudo apt -y install nvtop
+
+# pull llama2 docker
+docker pull ericyuanale/llama-env:llm-v1

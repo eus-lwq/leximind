@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  dataset:
+    image: python:3.12
+    container_name: leximind-init-codeparrot
+    volumes:
+      - ./data:/data
+    command: >
+      bash -c "
+        pip install --quiet gdown &&
+        echo 'Downloading codeparrot.zip...' &&
+        gdown --id 1N6fBv_r10nrMU2B3wftwHicREBuchepY -O codeparrot.zip &&
+        echo 'Extracting...' &&
+        unzip -o codeparrot.zip -d /data &&
+        echo 'Done.'
+      "
+
+  trainer:
+    image: ericyuanale/llama-env:llm-v1
+    container_name: llama-trainer
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./data:/mnt/data
+    working_dir: /workspace
+    entrypoint: bash

@@ -1,0 +1,29 @@
+version: '3.9'
+
+volumes:
+  codeparrot:
+    external: true  # docker volume create codeparrot
+
+services:
+  init-codeparrot:
+    image: python:3.12
+    volumes:
+      - codeparrot:/data
+    working_dir: /data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        echo "Installing gdown..."
+        pip install --quiet gdown
+
+        echo "Downloading codeparrot.zip from Google Drive..."
+        gdown --id 1N6fBv_r10nrMU2B3wftwHicREBuchepY -O codeparrot.zip
+
+        echo "Extracting codeparrot.zip..."
+        apt-get update && apt-get install -y unzip
+        unzip -q codeparrot.zip && rm codeparrot.zip
+
+        echo "Dataset codeparrot setup complete at /data"
+    restart: "no"
