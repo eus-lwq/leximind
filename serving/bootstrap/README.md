@@ -42,12 +42,26 @@ This guide will help you set up Terraform on your local machine.
 
 1. Obtain cloud creds from Chameleon UI
 
-2. Set the env variable that reference to the cloud creds file, for example:
+2. Change the site configuration name to "KVM@TACC", for example:
 
-``` bash
-export OS_CLIENT_CONFIG_FILE=clouds.yaml
-```
+    ``` yaml
+    clouds:
+        KVM@TACC:
+            auth:
+            auth_url: "https://your-openstack-auth-url"
+            username: "your-username"
+            password: "your-password"
+            project_name: "your-project-name"
+            user_domain_name: "default"
+            project_domain_name: "default"
+    ```
 
-3. Obtain private and public keys
+3. Set the env variable that reference to the cloud creds file, for example:
 
-4. Update variable reference to the private and public keys
+    ``` bash
+    export OS_CLIENT_CONFIG_FILE=clouds.yaml
+    ```
+
+4. Obtain private and public keys
+
+5. Update variable reference to the private and public keys
