@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  dataset:
+    image: python:3.12
+    container_name: leximind-init-codeparrot
+    volumes:
+      - ./data:/data
+    command: >
+      bash -c "
+        pip install --quiet gdown &&
+        echo 'Downloading codeparrot.zip...' &&
+        gdown --id 1N6fBv_r10nrMU2B3wftwHicREBuchepY -O codeparrot.zip &&
+        echo 'Extracting...' &&
+        unzip -o codeparrot.zip -d /data &&
+        echo 'Done.'
+      "
+
+  trainer:
+    image: ericyuanale/llama-env:llm-v1
+    container_name: llama-trainer
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./data:/mnt/data
+    working_dir: /workspace
+    entrypoint: bash
+
+  ray-head:
+    image: rayproject/ray:latest
+    container_name: ray-head
+    command: >
+      ray start --head --port=6379
+    ports:
+      - "6379:6379" # Port for Ray's head node
+      - "8265:8265" # Port for Ray Dashboard
+    volumes:
+      - ./data:/mnt/data
+    environment:
+      - RAY_MEMORY_MONITOR_ERROR_THRESHOLD=0.8
+
+  ray-worker:
+    image: rayproject/ray:latest
+    container_name: ray-worker
+    command: >
+      ray start --address=ray-head:6379
+    depends_on:
+      - ray-head
+    volumes:
+      - ./data:/mnt/data
