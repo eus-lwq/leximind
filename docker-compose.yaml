@@ -3,16 +3,16 @@ version: '3.9'
 services:
   dataset:
     image: python:3.12
-    container_name: leximind-init-codeparrot
+    container_name: leximind-init-codeqa
     volumes:
       - ./data:/data
     command: >
       bash -c "
         pip install --quiet gdown &&
-        echo 'Downloading codeparrot.zip...' &&
-        gdown --id 1N6fBv_r10nrMU2B3wftwHicREBuchepY -O codeparrot.zip &&
+        echo 'Downloading codeqa.zip...' &&
+        gdown --id 1vqeXmwJ2wKMD3xL2GAZJssOREot7k6mU -O codeqa.zip &&
         echo 'Extracting...' &&
-        unzip -o codeparrot.zip -d /data &&
+        unzip -o codeqa.zip -d /data &&
         echo 'Done.'
       "
 

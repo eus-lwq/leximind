@@ -1,14 +1,14 @@
 version: '3.9'
 
 volumes:
-  codeparrot:
-    external: true  # docker volume create codeparrot
+  codeqa:
+    external: true
 
 services:
-  init-codeparrot:
+  init-codeqa:
     image: python:3.12
     volumes:
-      - codeparrot:/data
+      - codeqa:/data
     working_dir: /data
     command:
       - bash
@@ -17,13 +17,16 @@ services:
         set -e
         echo "Installing gdown..."
         pip install --quiet gdown
-
-        echo "Downloading codeparrot.zip from Google Drive..."
-        gdown --id 1N6fBv_r10nrMU2B3wftwHicREBuchepY -O codeparrot.zip
-
-        echo "Extracting codeparrot.zip..."
+        
+        echo "Downloading codeqa.zip from Google Drive..."
+        gdown --id 1vqeXmwJ2wKMD3xL2GAZJssOREot7k6mU -O codeqa.zip
+        
+        echo "Extracting codeqa.zip..."
         apt-get update && apt-get install -y unzip
-        unzip -q codeparrot.zip && rm codeparrot.zip
-
-        echo "Dataset codeparrot setup complete at /data"
+        mkdir -p codeqa
+        mv *.json codeqa/
+        unzip -q codeqa.zip -d codeqa/ || true
+        rm codeqa.zip
+        
+        echo "Dataset codeqa setup complete at /data/codeqa"
     restart: "no"
