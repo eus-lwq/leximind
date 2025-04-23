@@ -1,0 +1,4 @@
+FROM ericyuanale/llama-env:llm-v1
+
+# Install additional packages
+RUN pip install wandb

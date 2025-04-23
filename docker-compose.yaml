@@ -1,50 +1,183 @@
-version: '3.9'
-
+name: llama-ray-cluster
 services:
-  dataset:
-    image: python:3.12
-    container_name: leximind-init-codeqa
-    volumes:
-      - ./data:/data
-    command: >
-      bash -c "
-        pip install --quiet gdown &&
-        echo 'Downloading codeqa.zip...' &&
-        gdown --id 1vqeXmwJ2wKMD3xL2GAZJssOREot7k6mU -O codeqa.zip &&
-        echo 'Extracting...' &&
-        unzip -o codeqa.zip -d /data &&
-        echo 'Done.'
-      "
-
-  trainer:
-    image: ericyuanale/llama-env:llm-v1
-    container_name: llama-trainer
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./data:/mnt/data
-    working_dir: /workspace
-    entrypoint: bash
-
-  ray-head:
-    image: rayproject/ray:latest
-    container_name: ray-head
-    command: >
-      ray start --head --port=6379
-    ports:
-      - "6379:6379" # Port for Ray's head node
-      - "8265:8265" # Port for Ray Dashboard
-    volumes:
-      - ./data:/mnt/data
+  # MinIO object store service
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:  
+      - "9000:9000" 
+      - "9001:9001"  
     environment:
-      - RAY_MEMORY_MONITOR_ERROR_THRESHOLD=0.8
+      MINIO_ROOT_USER: "your-access-key"
+      MINIO_ROOT_PASSWORD: "your-secret-key"
+    healthcheck:
+      test: timeout 5s bash -c ':> /dev/tcp/127.0.0.1/9000' || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 5
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data 
 
-  ray-worker:
-    image: rayproject/ray:latest
-    container_name: ray-worker
-    command: >
-      ray start --address=ray-head:6379
+  # MinIO bucket creation
+  minio-create-bucket:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set minio http://minio:9000 your-access-key your-secret-key &&
+      if ! mc ls minio/ray; then
+        mc mb minio/ray &&
+        echo 'Bucket ray created'
+      else
+        echo 'Bucket ray already exists';
+      fi"
+
+  # Ray head node
+  ray-head:
+    image: rayproject/ray:2.42.1-py310
+    container_name: ray-head
+    command: |
+      /bin/sh -c "
+      mkdir -p /tmp/ray && 
+      chown -R root:root /tmp/ray &&
+      ray metrics launch-prometheus &&
+      ray start --head --port=6379 --dashboard-host=0.0.0.0 --block --metrics-export-port=8080"
+    ports:
+      - "6379:6379" 
+      - "8265:8265"  # Ray dashboard
+      - "8080:8080" 
+      - "8090:8090" 
+      - "9090:9090"  # Prometheus
+    shm_size: '12g'
+    volumes:
+      - ray_tmp:/tmp/ray
+      - codeqa:/mnt/codeqa
+    environment:
+      - RAY_GRAFANA_HOST=http://grafana:3000
+      - RAY_GRAFANA_IFRAME_HOST=http://${HOST_IP}:3000
+      - RAY_PROMETHEUS_HOST=http://ray-head:9090
+      - RAY_PROMETHEUS_NAME=Prometheus
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+    user: root
+    networks:
+      - llama-ray-network
+
+  # Grafana for monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    entrypoint: |
+      /bin/sh -c "
+      # Wait for config directory
+      while [ ! -f /tmp/ray/session_latest/metrics/grafana/grafana.ini ]; do
+        echo 'Waiting for Grafana config files...'
+        sleep 2
+      done
+      
+      # Start Grafana with copied config
+      /run.sh --config /tmp/ray/session_latest/metrics/grafana/grafana.ini"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_storage:/var/lib/grafana
+      - ray_tmp:/tmp/ray:ro
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_PATHS_PROVISIONING=/tmp/ray/session_latest/metrics/grafana/provisioning
+      - GF_SERVER_HTTP_ADDR=0.0.0.0
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_PROXY_ENABLED=true
+      - GF_AUTH_PROXY_AUTO_SIGN_UP=true
     depends_on:
       - ray-head
+    networks:
+      - llama-ray-network
+
+  # Ray worker with GPU
+  ray-worker-1:
+    image: rayproject/ray:2.42.1-py310-gpu
+    container_name: ray-worker-0
+    command: ["ray", "start", "--address=ray-head:6379", "--num-cpus=32", "--num-gpus=1", "--block"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              capabilities: ["gpu"]
+              device_ids: ["0"]
+    environment:
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+    shm_size: '12g'
     volumes:
-      - ./data:/mnt/data
+      - codeqa:/mnt/codeqa
+    depends_on:
+      - ray-head
+    networks:
+      - llama-ray-network
+
+  # LLama-Factory training container
+  llama-trainer:
+    image: ericyuanale/llama-env:llm-v1
+    container_name: llama-trainer
+    command: ["tail", "-f", "/dev/null"]  # Keep container running
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              capabilities: ["gpu"]
+              device_ids: ["1"]  # Use second GPU
+    volumes:
+      - ~/llama-factory:/llama-factory
+      - codeqa:/mnt/codeqa
+    environment:
+      - RAY_ADDRESS=ray-head:6379
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+    depends_on:
+      - ray-head
+    networks:
+      - llama-ray-network
+
+  # Jupyter notebook with Ray
+  jupyter:
+    image: jupyter-ray
+    container_name: jupyter
+    ports:
+      - "8888:8888"
+    environment:
+      - RAY_ADDRESS=ray-head:6379
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+    volumes:
+      - ~/workspace_ray:/home/jovyan/work/
+      - codeqa:/home/jovyan/work/data
+    depends_on:
+      - ray-head
+    networks:
+      - llama-ray-network
+
+volumes:
+  grafana_storage:
+  ray_tmp:
+  minio_data:
+  codeqa:
+    external: true  # Uses externally created volume
+
+networks:
+  llama-ray-network:
+    driver: bridge

@@ -6,7 +6,7 @@ volumes:
 
 services:
   init-codeqa:
-    image: python:3.12
+    image: python:3.10
     volumes:
       - codeqa:/data
     working_dir: /data
