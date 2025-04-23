@@ -129,7 +129,7 @@ services:
 
   # LLama-Factory training container
   llama-trainer:
-    image: ericyuanale/llama-env:llm-v1
+    image: llama-env-extended:v1
     container_name: llama-trainer
     command: ["tail", "-f", "/dev/null"]  # Keep container running
     deploy:
@@ -138,7 +138,7 @@ services:
           devices:
             - driver: "nvidia"
               capabilities: ["gpu"]
-              device_ids: ["1"]  # Use second GPU
+              device_ids: ["0"]  # Use first GPU
     volumes:
       - ~/llama-factory:/llama-factory
       - codeqa:/mnt/codeqa
