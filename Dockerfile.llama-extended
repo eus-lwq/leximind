@@ -2,5 +2,8 @@ FROM ericyuanale/llama-env:llm-v1
 
 # Install additional packages
 RUN pip install wandb
-RUN pip install "ray[default,tune]==2.9.3"
-RUN git clone https://github.com/Yuan-33/llama-factory.git
+# RUN pip install "ray[default,tune]==2.9.3"
+RUN pip install "ray[default,tune]==2.42.1"
+RUN git clone https://github.com/Yuan-33/llama-factory.git llama-factory
+RUN apt update && apt install -y nano && apt-get install -y curl
+RUN apt-get update && apt-get install -y build-essential python3-dev

@@ -64,6 +64,10 @@ services:
       - AWS_ACCESS_KEY_ID=your-access-key
       - AWS_SECRET_ACCESS_KEY=your-secret-key
       - AWS_ENDPOINT_URL=http://minio:9000
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - WANDB_API_KEY=${WANDB_API_KEY}
+    env_file:
+      - .env
     user: root
     networks:
       - llama-ray-network
@@ -104,7 +108,7 @@ services:
       - llama-ray-network
 
   # Ray worker with GPU
-  ray-worker-1:
+  ray-worker-0:
     image: rayproject/ray:2.42.1-py310-gpu
     container_name: ray-worker-0
     command: ["ray", "start", "--address=ray-head:6379", "--num-cpus=32", "--num-gpus=1", "--block"]
@@ -119,6 +123,10 @@ services:
       - AWS_ACCESS_KEY_ID=your-access-key
       - AWS_SECRET_ACCESS_KEY=your-secret-key
       - AWS_ENDPOINT_URL=http://minio:9000
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - WANDB_API_KEY=${WANDB_API_KEY}
+    env_file:
+      - .env
     shm_size: '12g'
     volumes:
       - codeqa:/mnt/codeqa
@@ -140,13 +148,16 @@ services:
               capabilities: ["gpu"]
               device_ids: ["0"]  # Use first GPU
     volumes:
-      - ~/llama-factory:/llama-factory
       - codeqa:/mnt/codeqa
     environment:
       - RAY_ADDRESS=ray-head:6379
       - AWS_ACCESS_KEY_ID=your-access-key
       - AWS_SECRET_ACCESS_KEY=your-secret-key
       - AWS_ENDPOINT_URL=http://minio:9000
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - WANDB_API_KEY=${WANDB_API_KEY}
+    env_file:
+      - .env
     depends_on:
       - ray-head
     networks:
@@ -163,6 +174,10 @@ services:
       - AWS_ACCESS_KEY_ID=your-access-key
       - AWS_SECRET_ACCESS_KEY=your-secret-key
       - AWS_ENDPOINT_URL=http://minio:9000
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+      - WANDB_API_KEY=${WANDB_API_KEY}
+    env_file:
+      - .env
     volumes:
       - ~/workspace_ray:/home/jovyan/work/
       - codeqa:/home/jovyan/work/data

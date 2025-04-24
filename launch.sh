@@ -38,16 +38,27 @@ docker logs jupyter 2>&1 | grep "http://127.0.0.1:8888"
 
 # After starting the container
 echo "Copying Ray scripts to container..."
-docker cp ray_submit.py llama-trainer:/root/ray_scripts/
-docker cp ray_monitor.py llama-trainer:/root/ray_scripts/
-docker exec llama-trainer chmod +x /root/ray_scripts/ray_submit.py
-docker exec llama-trainer chmod +x /root/ray_scripts/ray_monitor.py
+docker exec llama-trainer mkdir -p /ray_scripts
+docker cp ray_submit.py llama-trainer:ray_scripts/
+docker cp ray_monitor.py llama-trainer:ray_scripts/
+docker exec llama-trainer chmod +x /ray_scripts/ray_submit.py
+docker exec llama-trainer chmod +x /ray_scripts/ray_monitor.py
+
+## add hugging face and wandb token
+docker cp .env llama-trainer:/ray_scripts/.env
+docker cp source_tokens.sh llama-trainer:/ray_scripts/source_tokens.sh
+docker exec llama-trainer chmod +x /ray_scripts/source_tokens.sh
+
+## train: change some path to execute directly from outside
+docker cp train_outside.sh llama-trainer:/llama-factory/train_outside.sh
+docker exec llama-trainer chmod +x /llama-factory/train_outside.sh
 
 echo "Environment is ready!"
 echo "- Ray dashboard: http://$HOST_IP:8265"
 echo "- Grafana: http://$HOST_IP:3000"
 echo "- MinIO: http://$HOST_IP:9001"
 echo "- To connect to llama-trainer: docker exec -it llama-trainer bash"
-echo "- To submit Ray job: docker exec -it llama-trainer python /root/ray_scripts/ray_submit.py"
-echo "- To monitor training: docker exec -it llama-trainer python /root/ray_scripts/ray_monitor.py"
+echo "- To run container training job directly: docker exec -it llama-trainer bash /llama-factory/train_outside.sh"
+echo "- To submit Ray job: docker exec -it llama-trainer python3 /ray_scripts/ray_submit.py"
+echo "- To monitor training: docker exec -it llama-trainer python3 /ray_scripts/ray_monitor.py"
 echo "- To stop the environment: docker compose down"
