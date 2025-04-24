@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Clone the llama-factory repository if it doesn't exist
-if [ ! -d ~/llama-factory ]; then
-    echo "Cloning llama-factory repository..."
-    git clone https://github.com/Yuan-33/llama-factory.git ~/llama-factory
-
 # Set environment variables
 export HOST_IP=$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)
 
@@ -41,8 +36,18 @@ echo "Waiting for Jupyter to start..."
 sleep 5
 docker logs jupyter 2>&1 | grep "http://127.0.0.1:8888"
 
+# After starting the container
+echo "Copying Ray scripts to container..."
+docker cp ray_submit.py llama-trainer:/root/ray_scripts/
+docker cp ray_monitor.py llama-trainer:/root/ray_scripts/
+docker exec llama-trainer chmod +x /root/ray_scripts/ray_submit.py
+docker exec llama-trainer chmod +x /root/ray_scripts/ray_monitor.py
+
 echo "Environment is ready!"
 echo "- Ray dashboard: http://$HOST_IP:8265"
 echo "- Grafana: http://$HOST_IP:3000"
 echo "- MinIO: http://$HOST_IP:9001"
 echo "- To connect to llama-trainer: docker exec -it llama-trainer bash"
+echo "- To submit Ray job: docker exec -it llama-trainer python /root/ray_scripts/ray_submit.py"
+echo "- To monitor training: docker exec -it llama-trainer python /root/ray_scripts/ray_monitor.py"
+echo "- To stop the environment: docker compose down"
