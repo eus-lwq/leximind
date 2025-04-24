@@ -2,3 +2,4 @@ FROM ericyuanale/llama-env:llm-v1
 
 # Install additional packages
 RUN pip install wandb
+RUN pip install "ray[default,tune]==2.9.3"
