@@ -3,7 +3,7 @@
 # Clone the llama-factory repository if it doesn't exist
 if [ ! -d ~/llama-factory ]; then
     echo "Cloning llama-factory repository..."
-    git clone
+    git clone https://github.com/Yuan-33/llama-factory.git ~/llama-factory
 
 # Set environment variables
 export HOST_IP=$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)
