@@ -24,9 +24,19 @@ services:
         echo "Extracting codeqa.zip..."
         apt-get update && apt-get install -y unzip
         mkdir -p codeqa
-        mv *.json codeqa/
-        unzip -q codeqa.zip -d codeqa/ || true
-        rm codeqa.zip
+        unzip -q codeqa.zip
+        # Check what files we have
+        echo "Files after unzipping:"
+        ls -la
+        # Move any JSON files to codeqa directory
+        if ls *.json 1> /dev/null 2>&1; then
+          mv *.json codeqa/
+        fi
+        # Try to move any other extracted files
+        find . -type f -not -name "codeqa.zip" -not -path "./codeqa/*" -exec mv {} codeqa/ \;
+        # Check what's in the codeqa directory
+        echo "Contents of codeqa directory:"
+        ls -la codeqa/
         
         echo "Dataset codeqa setup complete at /data/codeqa"
     restart: "no"
