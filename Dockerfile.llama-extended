@@ -1,9 +1,78 @@
-FROM ericyuanale/llama-env:llm-v1
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
-# Install additional packages
-RUN pip install wandb
-# RUN pip install "ray[default,tune]==2.9.3"
-RUN pip install "ray[default,tune]==2.42.1"
-RUN git clone https://github.com/Yuan-33/llama-factory.git llama-factory
-RUN apt update && apt install -y nano && apt-get install -y curl
-RUN apt-get update && apt-get install -y build-essential python3-dev
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    build-essential \
+    wget \
+    git \
+    curl \
+    jq \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libffi-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    liblzma-dev \
+    uuid-dev \
+    xz-utils \
+    sudo \
+    gnupg2 \
+    nano \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python 3.10.12
+RUN cd /usr/src && \
+    wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
+    tar xzf Python-3.10.12.tgz && \
+    cd Python-3.10.12 && \
+    ./configure --enable-optimizations && \
+    make -j$(nproc) && \
+    make altinstall && \
+    cd .. && \
+    rm -rf Python-3.10.12 Python-3.10.12.tgz
+
+# Set Python 3.10.12 as default
+RUN ln -sf /usr/local/bin/python3.10 /usr/bin/python && \
+    ln -sf /usr/local/bin/python3.10 /usr/bin/python3 && \
+    ln -sf /usr/local/bin/pip3.10 /usr/bin/pip
+
+# Upgrade pip and install PyTorch
+RUN pip install --upgrade pip
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Install ML dependencies
+RUN pip install \
+    transformers==4.50.0 \
+    datasets==3.2.0 \
+    accelerate==1.2.1 \
+    peft==0.15.0 \
+    trl==0.9.6 \
+    deepspeed \
+    bitsandbytes \
+    vllm \
+    flash-attn \
+    python-dotenv \
+    wandb \
+    "ray[default,tune]==2.42.1" \
+    scikit-learn \
+    sentencepiece \
+    scipy \
+    tqdm \
+    evaluate \
+    matplotlib
+
+# Clone llama-factory
+RUN git clone https://github.com/Yuan-33/llama-factory.git /llama-factory
+
+# Create and set working directory
+WORKDIR /llama-factory
+
+# Create directory for Ray scripts
+RUN mkdir -p /ray_scripts
+
+CMD ["bash"]

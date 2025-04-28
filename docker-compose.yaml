@@ -137,7 +137,9 @@ services:
 
   # LLama-Factory training container
   llama-trainer:
-    image: llama-env-extended:v1
+    build:
+      context: .
+      dockerfile: Dockerfile.llama-extended
     container_name: llama-trainer
     command: ["tail", "-f", "/dev/null"]  # Keep container running
     deploy:
@@ -149,6 +151,9 @@ services:
               device_ids: ["0"]  # Use first GPU
     volumes:
       - codeqa:/mnt/codeqa
+      - ./ray_scripts:/ray_scripts  # Mount ray scripts directory
+      - ./source_tokens.sh:/ray_scripts/source_tokens.sh  # Mount tokens script
+      - ./train_outside.sh:/llama-factory/train_outside.sh  # Mount training script
     environment:
       - RAY_ADDRESS=ray-head:6379
       - AWS_ACCESS_KEY_ID=your-access-key

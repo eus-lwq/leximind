@@ -12,3 +12,4 @@ deepspeed
 bitsandbytes
 vllm
 flash-attn
+python-dotenv

@@ -3,6 +3,7 @@ import subprocess
 import os
 import time
 import sys
+from dotenv import load_dotenv
 
 # Print debugging information
 print("Current working directory:", os.getcwd())
@@ -22,12 +23,18 @@ except Exception as e:
 print("Successfully connected to Ray cluster!")
 print(f"Available resources: {ray.available_resources()}")
 
+# Load environment variables
+load_dotenv()
+HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+WANDB_API_KEY = os.getenv("WANDB_API_KEY", "")
+
 # Define a remote function that runs the training script with environment variables
 @ray.remote(num_gpus=1, runtime_env={
     "env_vars": {
-        "HUGGINGFACE_TOKEN": "",
-        "HF_TOKEN": "",
-        "WANDB_API_KEY": ""
+        "HUGGINGFACE_TOKEN": HUGGINGFACE_TOKEN,
+        "HF_TOKEN": HF_TOKEN,
+        "WANDB_API_KEY": WANDB_API_KEY
     }
 })
 def run_train_script():
