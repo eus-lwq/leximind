@@ -1,8 +1,9 @@
 #!/bin/bash
 
-#export HF_TOKEN=h1***
-cd /llama-factory
-CUDA_VISIBLE_DEVICES=0 python3 /llama-factory/src/train.py \
+# Use the Python interpreter passed via the PYTHON environment variable, or default to python3
+PYTHON_BIN="${PYTHON:-python3}"
+
+CUDA_VISIBLE_DEVICES=0 $PYTHON_BIN src/train.py \
   --stage sft \
   --model_name_or_path meta-llama/Meta-Llama-3-8B \
   --do_train \
@@ -35,4 +36,6 @@ CUDA_VISIBLE_DEVICES=0 python3 /llama-factory/src/train.py \
   --cutoff_len 512 \
   --include_tokens_per_second true \
   --plot_loss \
-  --metric_for_best_model loss 
+  --metric_for_best_model loss \
+  --lora_rank 8 \
+  --lora_target "q_proj,v_proj"

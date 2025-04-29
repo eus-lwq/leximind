@@ -2,6 +2,7 @@
 
 # Set environment variables
 export HOST_IP=$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)
+git clone https://github.com/Yuan-33/llama-factory.git
 
 # Create ray_scripts directory if it doesn't exist
 mkdir -p ray_scripts
@@ -22,11 +23,15 @@ fi
 # Start the integrated environment
 echo "Starting LLama-Ray integrated environment..."
 docker compose up -d --build  # Added --build flag to ensure trainer image is built
+docker cp ray_submit.py llama-trainer:/llama-factory/ray_submit.py
 
 # Show Jupyter URL
 echo "Waiting for Jupyter to start..."
 sleep 5
 docker logs jupyter 2>&1 | grep "http://127.0.0.1:8888"
+
+docker cp leximind/new_train.sh llama-trainer:/llama-factory/new_train.sh
+docker cp leximind/ray_submit.py llama-trainer:/llama-factory/ray_submit.py
 
 echo "Environment is ready!"
 echo "- Ray dashboard: http://$HOST_IP:8265"

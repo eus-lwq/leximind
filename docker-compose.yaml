@@ -39,6 +39,9 @@ services:
   # Ray head node
   ray-head:
     image: rayproject/ray:2.42.1-py310
+    build:
+      context: .
+      dockerfile: Dockerfile.llama-extended
     container_name: ray-head
     command: |
       /bin/sh -c "
@@ -47,7 +50,7 @@ services:
       ray metrics launch-prometheus &&
       ray start --head --port=6379 --dashboard-host=0.0.0.0 --block --metrics-export-port=8080"
     ports:
-      - "6379:6379" 
+      - "6379:6379"  # ray head port
       - "8265:8265"  # Ray dashboard
       - "8080:8080" 
       - "8090:8090" 
@@ -56,6 +59,7 @@ services:
     volumes:
       - ray_tmp:/tmp/ray
       - codeqa:/mnt/codeqa
+      - ./llama-factory:/llama-factory
     environment:
       - RAY_GRAFANA_HOST=http://grafana:3000
       - RAY_GRAFANA_IFRAME_HOST=http://${HOST_IP}:3000
@@ -110,6 +114,9 @@ services:
   # Ray worker with GPU
   ray-worker-0:
     image: rayproject/ray:2.42.1-py310-gpu
+    build:
+      context: .
+      dockerfile: Dockerfile.llama-extended
     container_name: ray-worker-0
     command: ["ray", "start", "--address=ray-head:6379", "--num-cpus=32", "--num-gpus=1", "--block"]
     deploy:
@@ -130,6 +137,7 @@ services:
     shm_size: '12g'
     volumes:
       - codeqa:/mnt/codeqa
+      - ./llama-factory:/llama-factory
     depends_on:
       - ray-head
     networks:
@@ -151,9 +159,10 @@ services:
               device_ids: ["0"]  # Use first GPU
     volumes:
       - codeqa:/mnt/codeqa
-      - ./ray_scripts:/ray_scripts  # Mount ray scripts directory
-      - ./source_tokens.sh:/ray_scripts/source_tokens.sh  # Mount tokens script
-      - ./train_outside.sh:/llama-factory/train_outside.sh  # Mount training script
+      # - ./ray_scripts:/ray_scripts  # Mount ray scripts directory
+      - ./llama-factory:/llama-factory
+      - ./ray_submit.py:/llama-factory/ray_submit.py  # Mount training script
+      - ./new_train.sh:/llama-factory/new_train.sh
     environment:
       - RAY_ADDRESS=ray-head:6379
       - AWS_ACCESS_KEY_ID=your-access-key
@@ -184,8 +193,10 @@ services:
     env_file:
       - .env
     volumes:
-      - ~/workspace_ray:/home/jovyan/work/
+      - ./workspace_ray:/home/jovyan/work/
       - codeqa:/home/jovyan/work/data
+      - ./llama-factory:/home/jovyan/work/llama-factory
+      - ./ray_monitor.py:/home/jovyan/work/llama-factory/ray_monitor.py
     depends_on:
       - ray-head
     networks:

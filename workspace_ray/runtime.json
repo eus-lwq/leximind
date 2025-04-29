@@ -1,0 +1,6 @@
+{
+    "pip": "requirements.txt",
+    "env_vars": {
+        "CodeQA_DATA_DIR": "/mnt/codeqa"
+    }
+}

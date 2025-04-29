@@ -1,0 +1,17 @@
+ray[default,tune]==2.42.1
+transformers
+datasets==3.5.0
+accelerate
+peft==0.15.1
+trl==0.9.6
+deepspeed
+bitsandbytes
+vllm
+python-dotenv
+wandb
+scikit-learn
+sentencepiece
+scipy
+tqdm
+evaluate
+matplotlib
