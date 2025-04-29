@@ -4,15 +4,12 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 from textwrap import wrap
+from urllib.parse import urlparse
 
-# --- Paths ---
-CHUNKS_DIR = '/mnt/block/rag_data/chunks'
-INDEX_DIR = '/mnt/block/rag_data/vector_index'
-CHUNKS_METADATA_PATH = os.path.join(CHUNKS_DIR, 'chunks_metadata.pkl')
-FAISS_INDEX_PATH = os.path.join(INDEX_DIR, 'faiss_index.index')
-
-os.makedirs(CHUNKS_DIR, exist_ok=True)
-os.makedirs(INDEX_DIR, exist_ok=True)
+# --- Get Repo Name ---
+def get_repo_name(repo_url):
+    parsed = urlparse(repo_url)
+    return os.path.splitext(os.path.basename(parsed.path))[0]
 
 # --- 1. Clone Repo ---
 def clone_repo(repo_url, clone_dir='cloned_repo'):
@@ -57,23 +54,37 @@ def embed_chunks(chunks, model_name='all-MiniLM-L6-v2'):
     embeddings = model.encode(texts, show_progress_bar=True)
     return np.array(embeddings), chunks
 
-def store_chunks_and_index(embeddings, chunks):
+def store_chunks_and_index(embeddings, chunks, repo_name):
+    chunks_dir = '/mnt/block/rag_data/chunks'
+    index_dir = '/mnt/block/rag_data/vector_index'
+    os.makedirs(chunks_dir, exist_ok=True)
+    os.makedirs(index_dir, exist_ok=True)
+
+    chunk_path = os.path.join(chunks_dir, f'{repo_name}_chunks.pkl')
+    index_path = os.path.join(index_dir, f'{repo_name}_faiss.index')
+
     dim = embeddings.shape[1]
     index = faiss.IndexFlatL2(dim)
     index.add(embeddings)
-    faiss.write_index(index, FAISS_INDEX_PATH)
-    with open(CHUNKS_METADATA_PATH, 'wb') as f:
+
+    faiss.write_index(index, index_path)
+    with open(chunk_path, 'wb') as f:
         pickle.dump(chunks, f)
-    print(f"✅ Saved FAISS index at {FAISS_INDEX_PATH}")
-    print(f"✅ Saved chunk metadata at {CHUNKS_METADATA_PATH}")
+
+    print(f"✅ Saved FAISS index at {index_path}")
+    print(f"✅ Saved chunk metadata at {chunk_path}")
 
 # --- Entry Point ---
 if __name__ == '__main__':
     repo_url = os.getenv('REPO_URL')
+    repo_name = get_repo_name(repo_url)
+
     print(f"📦 Cloning repo: {repo_url}")
     repo_path = clone_repo(repo_url)
+
     doc_files = collect_doc_files(repo_path)
     docs = read_files(doc_files)
     chunks = chunk_docs(docs)
     embeddings, chunks = embed_chunks(chunks)
-    store_chunks_and_index(embeddings, chunks)
+
+    store_chunks_and_index(embeddings, chunks, repo_name)
