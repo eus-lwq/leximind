@@ -1,0 +1,4 @@
+gitpython
+sentence-transformers
+faiss-cpu
+numpy
