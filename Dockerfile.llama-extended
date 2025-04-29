@@ -1,6 +1,5 @@
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     build-essential \
@@ -21,22 +20,16 @@ RUN apt-get update && apt-get install -y \
     xz-utils \
     sudo \
     gnupg2 \
-    nano \
-    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python 3.10.12
 RUN cd /usr/src && \
     wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
     tar xzf Python-3.10.12.tgz && \
     cd Python-3.10.12 && \
     ./configure --enable-optimizations && \
     make -j$(nproc) && \
-    make altinstall && \
-    cd .. && \
-    rm -rf Python-3.10.12 Python-3.10.12.tgz
+    make altinstall
 
-# Set Python 3.10.12 as default
 RUN ln -sf /usr/local/bin/python3.10 /usr/bin/python && \
     ln -sf /usr/local/bin/python3.10 /usr/bin/python3 && \
     ln -sf /usr/local/bin/pip3.10 /usr/bin/pip
@@ -45,26 +38,32 @@ RUN ln -sf /usr/local/bin/python3.10 /usr/bin/python && \
 RUN pip install --upgrade pip
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-# Install ML dependencies
+# Install ML dependencies (except flash-attn)
 RUN pip install \
-    transformers==4.50.0 \
-    datasets==3.2.0 \
-    accelerate==1.2.1 \
-    peft==0.15.0 \
-    trl==0.9.6 \
+    "ray[default,tune]==2.42.1" \
+    transformers \
+    datasets \
+    accelerate \
+    peft \
+    trl \
     deepspeed \
     bitsandbytes \
     vllm \
-    flash-attn \
     python-dotenv \
     wandb \
-    "ray[default,tune]==2.42.1" \
     scikit-learn \
     sentencepiece \
     scipy \
     tqdm \
     evaluate \
     matplotlib
+
+RUN pip install datasets==3.5.0 \
+    peft==0.15.1 \
+    trl==0.9.6 \
+    matplotlib
+# # Install flash-attn after torch is available
+# RUN pip install flash-attn
 
 # Clone llama-factory
 RUN git clone https://github.com/Yuan-33/llama-factory.git /llama-factory

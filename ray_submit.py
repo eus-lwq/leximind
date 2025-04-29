@@ -25,7 +25,7 @@ print(f"Available resources: {ray.available_resources()}")
 
 # Load environment variables
 load_dotenv()
-HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN", "")
+HUGGINGFACE_TOKEN = os.getenv("HF_TOKEN", "")
 HF_TOKEN = os.getenv("HF_TOKEN", "")
 WANDB_API_KEY = os.getenv("WANDB_API_KEY", "")
 
