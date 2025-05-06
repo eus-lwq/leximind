@@ -1,0 +1,6 @@
+setup.py
+mlflow_monitor.egg-info/PKG-INFO
+mlflow_monitor.egg-info/SOURCES.txt
+mlflow_monitor.egg-info/dependency_links.txt
+mlflow_monitor.egg-info/requires.txt
+mlflow_monitor.egg-info/top_level.txt

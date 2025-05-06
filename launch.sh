@@ -3,8 +3,6 @@
 export HOST_IP=$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)
 git clone https://github.com/Yuan-33/llama-factory.git
 
-# Create ray_scripts directory if it doesn't exist
-mkdir -p ray_scripts
 
 # Create dataset volume if not exists
 if ! docker volume ls | grep -q codeqa; then
@@ -34,6 +32,7 @@ echo "- Grafana: http://$HOST_IP:3000"
 echo "- MinIO: http://$HOST_IP:9001"
 echo "- Jupyter: http://$HOST_IP:8888"
 echo "- Prometheus: http://$HOST_IP:9090"
+echo "- MLflow: http://$HOST_IP:5000"
 echo "- To connect to llama-trainer: docker exec -it llama-trainer bash"
 echo "- To run train directly with bash: docker exec -it llama-trainer bash train.sh"
 echo "- To submit Ray job: docker exec -it llama-trainer python3 ray_submit.py"

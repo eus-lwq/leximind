@@ -60,6 +60,7 @@ services:
       - ray_tmp:/tmp/ray
       - codeqa:/mnt/codeqa
       - ./llama-factory:/llama-factory
+      - ./mlflow_monitor:/mlflow_monitor
     environment:
       - RAY_GRAFANA_HOST=http://grafana:3000
       - RAY_GRAFANA_IFRAME_HOST=http://${HOST_IP}:3000
@@ -138,6 +139,7 @@ services:
     volumes:
       - codeqa:/mnt/codeqa
       - ./llama-factory:/llama-factory
+      - ./mlflow_monitor:/mlflow_monitor
     depends_on:
       - ray-head
     networks:
@@ -163,6 +165,7 @@ services:
       - ./llama-factory:/llama-factory
       - ./ray_submit.py:/llama-factory/ray_submit.py  # Mount training script
       - ./new_train.sh:/llama-factory/new_train.sh
+      - ./mlflow_monitor:/mlflow_monitor
     environment:
       - RAY_ADDRESS=ray-head:6379
       - AWS_ACCESS_KEY_ID=your-access-key
@@ -197,8 +200,33 @@ services:
       - codeqa:/home/jovyan/work/data
       - ./llama-factory:/home/jovyan/work/llama-factory
       - ./ray_monitor.py:/home/jovyan/work/llama-factory/ray_monitor.py
+      - ./mlflow_monitor:/home/jovyan/work/mlflow_monitor
     depends_on:
       - ray-head
+    networks:
+      - llama-ray-network
+
+  # MLflow tracking server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.1
+    container_name: mlflow
+    ports:
+      - "5000:5000"
+    command: >
+      mlflow server 
+      --host 0.0.0.0 
+      --port 5000
+      --default-artifact-root s3://ray/mlflow/
+      --backend-store-uri sqlite:///mlflow.db
+    environment:
+      - AWS_ACCESS_KEY_ID=your-access-key
+      - AWS_SECRET_ACCESS_KEY=your-secret-key
+      - AWS_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+    volumes:
+      - ./mlflow:/mlflow
+    depends_on:
+      - minio
     networks:
       - llama-ray-network
 

@@ -56,7 +56,8 @@ RUN pip install \
     scipy \
     tqdm \
     evaluate \
-    matplotlib
+    matplotlib \
+    mlflow==2.11.1
 
 RUN pip install datasets==3.5.0 \
     peft==0.15.1 \
@@ -71,7 +72,13 @@ RUN git clone https://github.com/Yuan-33/llama-factory.git /llama-factory
 # Create and set working directory
 WORKDIR /llama-factory
 
-# Create directory for Ray scripts
-RUN mkdir -p /ray_scripts
+# Create directory for Ray scripts and MLflow monitor
+RUN mkdir -p /ray_scripts /mlflow_monitor
+
+# Copy MLflow monitoring package
+COPY mlflow_monitor /mlflow_monitor/
+
+# Install MLflow monitoring package
+RUN pip install -e /mlflow_monitor
 
 CMD ["bash"]
