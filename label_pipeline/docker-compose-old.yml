@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ${PWD}/prometheus.yaml:/etc/prometheus/prometheus.yml
+    networks:
+      - production_net
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ${PWD}/nginx.conf:/etc/nginx/nginx.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - production_net
+
+  # Label Studio with PostgreSQL
+  app-db:
+    image: postgres:13
+    container_name: app-db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=appdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - production_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  label-studio:
+    image: heartexlabs/label-studio:latest
+    container_name: label-studio
+    depends_on:
+      app-db:
+        condition: service_healthy
+    ports:
+      - "8090:8080"
+    volumes:
+      - ${PWD}/scripts:/label-studio/scripts
+      - label_studio_data:/label-studio/data
+    environment:
+      - DJANGO_DB=default
+      - POSTGRE_NAME=appdb
+      - POSTGRE_USER=user
+      - POSTGRE_PASSWORD=password
+      - POSTGRE_PORT=5432
+      - POSTGRE_HOST=app-db
+      - LABEL_STUDIO_BASE_DATA_DIR=/label-studio/data
+      - LABEL_STUDIO_USERNAME=labelstudio@example.com
+      - LABEL_STUDIO_PASSWORD=labelstudio
+      - LABEL_STUDIO_USER_TOKEN=ab9927067c51ff279d340d7321e4890dc2841c4a
+    networks:
+      - production_net
+    restart: unless-stopped
+
+  # MinIO setup
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=your-access-key
+      - MINIO_ROOT_PASSWORD=your-secret-key
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ':9001'
+    networks:
+      - production_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 your-access-key your-secret-key &&
+      mc mb -p myminio/queries &&
+      mc mb -p myminio/responses &&
+      mc mb -p myminio/label-studio-data ||
+      echo 'Buckets already exist'
+      "
+    networks:
+      - production_net
+
+  jupyter:
+    image: quay.io/jupyter/minimal-notebook:latest
+    container_name: jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ${PWD}/workspace:/home/jovyan/work
+    environment:
+      - MINIO_URL=http://minio:9000
+      - MINIO_USER=your-access-key
+      - MINIO_PASSWORD=your-secret-key
+      - LABEL_STUDIO_URL=http://label-studio:8080
+      - LABEL_STUDIO_USER_TOKEN=ab9927067c51ff279d340d7321e4890dc2841c4a
+    networks:
+      - production_net
+    command: >
+      bash -c "python3 -m pip install boto3 label-studio-sdk && start-notebook.sh"
+
+  # Label Studio integration service  
+  ls-integration:
+    build:
+      context: .
+      dockerfile: Dockerfile.sync
+    container_name: ls-integration
+    depends_on:
+      - label-studio
+      - minio
+    environment:
+      - LABEL_STUDIO_URL=http://label-studio:8080
+      - LABEL_STUDIO_USER_TOKEN=ab9927067c51ff279d340d7321e4890dc2841c4a
+      - MINIO_URL=http://minio:9000
+      - MINIO_USER=your-access-key
+      - MINIO_PASSWORD=your-secret-key
+    networks:
+      - production_net
+    restart: on-failure
+
+volumes:
+  minio_data:
+  postgres_data:
+  label_studio_data:
+
+networks:
+  production_net:
+    name: production_net
