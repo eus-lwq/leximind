@@ -27,19 +27,14 @@ jobs:
           chmod 600 ~/.config/openstack/clouds.yaml
           cat ~/.config/openstack/clouds.yaml
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.7.0"
-
-      - name: Terraform Init
+      - name: Terraform Version
         working-directory: serving
-        run: terraform init
+        run: terraform version 
 
-      - name: Terraform Plan
-        working-directory: serving
-        run: terraform plan
+      # - name: Terraform Plan
+      #   working-directory: serving
+      #   run: terraform plan 
 
-      - name: Terraform Apply
-        working-directory: serving
-        run: terraform apply -auto-approve 
+      # - name: Terraform Apply
+      #   working-directory: serving
+      #   run: terraform apply -auto-approve 
