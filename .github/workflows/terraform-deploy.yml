@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, ubuntu-w530]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,9 +27,16 @@ jobs:
           chmod 600 ~/.config/openstack/clouds.yaml
           cat ~/.config/openstack/clouds.yaml
 
+      # - name: Setup Terraform
+      #   uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_version: 1.5.6 # Specify the desired Terraform version
+
       - name: Terraform Version
         working-directory: serving
-        run: terraform version 
+        run: | 
+          conda activate leximind
+          terraform version 
 
       # - name: Terraform Plan
       #   working-directory: serving
@@ -37,4 +44,4 @@ jobs:
 
       # - name: Terraform Apply
       #   working-directory: serving
-      #   run: terraform apply -auto-approve 
+      #   run: terraform apply -auto-approve
