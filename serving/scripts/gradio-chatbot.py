@@ -42,6 +42,7 @@ def parse_args():
                         help='Model URL')
     parser.add_argument('-m',
                         '--model',
+                        default='/home/cc/model/whole_model/',
                         type=str,
                         required=True,
                         help='Model name for the chatbot')
@@ -49,8 +50,8 @@ def parse_args():
                         type=float,
                         default=0.8,
                         help='Temperature for text generation')
-    parser.add_argument("--host", type=str, default=None)
-    parser.add_argument("--port", type=int, default=8080)
+    parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=8001)
     return parser.parse_args()
 
 

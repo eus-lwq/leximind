@@ -183,3 +183,12 @@ output "chi_instance_public_ip" {
   value = local.create_chi_resources > 0 ? openstack_networking_floatingip_v2.chi_floating_ip[0].address : null
 }
 
+output "vllm_endpoint" {
+  value = local.create_chi_resources > 0 ? "http://${openstack_networking_floatingip_v2.chi_floating_ip[0].address}:8080/v1" : null
+  description = "The vLLM endpoint URL"
+}
+
+output "simple_chatui_endpoint" {
+  value = local.create_chi_resources > 0 ? "http://${openstack_networking_floatingip_v2.chi_floating_ip[0].address}:8081" : null
+  description = "The Simple Chat UI endpoint URL"
+}

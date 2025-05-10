@@ -60,5 +60,11 @@ done
 
 # Serving the model using vLLM
 echo "🚀 Serving the model using vLLM..."
-tmux new-session -d -s vllm-session "vllm serve /home/cc/model/\$MODEL_VER/ --dtype=half"
+tmux new-session -d -s vllm-session "vllm serve /home/cc/model/\$MODEL_VER/ --dtype=half --chat-template /home/cc/scripts/llama3_chat_template.txt"
+tmux ls
+
+
+# Serving the simple chatui with Gradio
+echo "🚀 Serving the simple chatui with Gradio..."
+tmux new-session -d -s chatui-session "python scripts/gradio-chatbot.py -m /home/cc/model/\$MODEL_VER/ --model-url http://localhost:8000/v1 --port 8001"
 tmux ls
