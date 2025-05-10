@@ -67,7 +67,7 @@ def parse_args():
     parser.add_argument('--minio-password', type=str, default='your-secret-key')
     parser.add_argument('--label-studio-url', type=str, default=f'http://{public_ip}:8090')
     parser.add_argument('--label-studio-token', type=str, 
-                        default='ab9927067c51ff279d340d7321e4890dc2841c4a')
+                        default='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmc')
     return parser.parse_args()
 
 def setup_minio_client(args):

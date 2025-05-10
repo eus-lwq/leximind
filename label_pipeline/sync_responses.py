@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 # Label Studio settings
 LS_URL = os.getenv('LABEL_STUDIO_URL', 'http://label-studio:8080')
-LS_TOKEN = os.getenv('LABEL_STUDIO_USER_TOKEN', 'ab9927067c51ff279d340d7321e4890dc2841c4a')
+LS_TOKEN = os.getenv('LABEL_STUDIO_USER_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmc')
 
 # MinIO settings
 MINIO_URL = os.getenv('MINIO_URL', 'http://minio:9000')

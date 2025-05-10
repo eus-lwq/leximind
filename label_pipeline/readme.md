@@ -36,6 +36,13 @@ This will add a test query and response to MinIO and Label Studio.
 
 ### 4. Run the Gradio Chatbot
 
+run gradio directly
+```bash
+python gradio_chatbot_with_storage.py -m "/home/cc/model/whole_model/" --model-url http://localhost:8000/v1
+```
+
+OR 
+
 With the project ID from the test script:
 
 ```bash

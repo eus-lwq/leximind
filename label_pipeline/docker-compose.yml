@@ -62,7 +62,7 @@ services:
       - LABEL_STUDIO_BASE_DATA_DIR=/label-studio/data
       - LABEL_STUDIO_USERNAME=labelstudio@example.com
       - LABEL_STUDIO_PASSWORD=labelstudio
-      - LABEL_STUDIO_USER_TOKEN=ab9927067c51ff279d340d7321e4890dc2841c4a
+      - LABEL_STUDIO_USER_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmc
     networks:
       - production_net
     restart: unless-stopped
