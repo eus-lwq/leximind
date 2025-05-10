@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, ubuntu-w530]
+    runs-on: [self-hosted, x64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,11 +26,6 @@ jobs:
           echo "${{ secrets.clouds_yaml }}" > ~/.config/openstack/clouds.yaml
           chmod 600 ~/.config/openstack/clouds.yaml
           cat ~/.config/openstack/clouds.yaml
-
-      # - name: Setup Terraform
-      #   uses: hashicorp/setup-terraform@v2
-      #   with:
-      #     terraform_version: 1.5.6 # Specify the desired Terraform version
 
       - name: Terraform Version
         working-directory: serving
