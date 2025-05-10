@@ -7,7 +7,7 @@ on:
 
 jobs:
   say-hello:
-    runs-on: self-hosted
+    runs-on: [self-hosted, x64]
     steps:
       - name: Print Hello World and Save Locally
         run: |

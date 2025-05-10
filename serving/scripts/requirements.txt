@@ -1,0 +1,11 @@
+fastapi>=0.68.0
+uvicorn>=0.15.0
+pydantic>=1.8.0
+faiss-cpu>=1.7.0
+numpy>=1.21.0
+sentence-transformers>=2.2.0
+requests>=2.26.0
+python-multipart>=0.0.5
+prometheus-fastapi-instrumentator>=0.17.0
+aiofiles>=0.7.0
+

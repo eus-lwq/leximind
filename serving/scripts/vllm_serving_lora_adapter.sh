@@ -33,8 +33,9 @@ echo "✅ Conda environment ready and activated."
 
 # Install vLLM and dependencies
 echo "📚 Installing vLLM and dependencies..."
-pip install vllm gradio python-openstackclient -q
+pip install vllm -q
 pip install git+https://github.com/ChameleonCloud/python-blazarclient.git@chameleoncloud/xena -q
+pip install python-openstackclient -q
 echo "✅ vLLM and dependencies installed."
 
 # Download models
@@ -58,13 +59,17 @@ openstack object list leximind_project6 --prefix model/$MODEL_VER/ -f value -c N
   fi
 done
 
+echo $LORA_ADAPTER
+openstack object list leximind_project6 --prefix model/$LORA_ADAPTER/ -f value -c Name | while read object; do
+  if [[ "$object" != */ ]]; then
+    echo "Saving $object..."
+    if ! openstack object save leximind_project6 "$object"; then
+      echo "Failed to save $object" >&2
+    fi
+  fi
+done
+
 # Serving the model using vLLM
 echo "🚀 Serving the model using vLLM..."
-tmux new-session -d -s vllm-session "vllm serve /home/cc/model/\$MODEL_VER/ --dtype=half --chat-template /home/cc/scripts/llama3_chat_template.txt"
-tmux ls
-
-
-# Serving the simple chatui with Gradio
-echo "🚀 Serving the simple chatui with Gradio..."
-tmux new-session -d -s chatui-session "python scripts/gradio-chatbot.py -m /home/cc/model/\$MODEL_VER/ --model-url http://localhost:8000/v1 --port 8001"
-tmux ls
+# nohup vllm serve /home/cc/model/$MODEL_VER/ --dtype=half 2>&1 &
+tmux new-session -d -s vllm-session "vllm serve /home/cc/model/\$MODEL_VER/ --enable-lora --lora-modules lora_adapter=/home/cc/model/\$LORA_ADAPTER/ --dtype=half"
