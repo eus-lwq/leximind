@@ -30,6 +30,7 @@ jobs:
       - name: Terraform Version
         working-directory: serving
         run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
           conda activate leximind
           terraform version 
 
