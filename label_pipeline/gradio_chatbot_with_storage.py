@@ -276,7 +276,7 @@ def parse_args():
     parser.add_argument("--minio-password", type=str, default="your-secret-key")
     parser.add_argument("--label-studio-url", type=str, default=f"http://{public_ip}:8090")
     parser.add_argument("--label-studio-token", type=str, 
-                       default="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6ODA1NDExNjY0OSwiaWF0IjoxNzQ2OTE2NjQ5LCJqdGkiOiIyNTUwMjE0M2RkYzA0YzE1YWZlOTAwZGY4YjViOGY1NCIsInVzZXJfaWQiOjF9.Yqx9lGOn7ROF5ANU5YUoZYACuyvzJT-0m8bS1kcSX4Q", # PAT
+                       default="ab9927067c51ff279d340d7321e4890dc2841c4a",
                        help="Label Studio API token (from Access Tokens page)")
     parser.add_argument("--label-studio-project-id", type=str, default=None)
     parser.add_argument("--user-id", type=str, default="gradio-user")
