@@ -1,0 +1,19 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"     # allow a direct connection from container to the local machine
+    ports:
+      - "9090:9090"   # the default port used by Prometheus
+    volumes:
+      - ${PWD}/prometheus.yaml:/etc/prometheus/prometheus.yml # mount Prometheus config file
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"  # Host:8080 → Container:80
+    volumes:
+      - ${PWD}/nginx.conf:/etc/nginx/nginx.conf  # Mount custom config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Required for Linux to resolve host IP
+    restart: unless-stopped
