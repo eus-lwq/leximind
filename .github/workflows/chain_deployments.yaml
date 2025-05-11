@@ -7,9 +7,9 @@ on:
 
 jobs:
   trigger-staging:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, x64]
     steps:
       - name: Trigger Staging Deployment
-        uses: peter-evans/workflow-dispatch@v1
+        uses: peter-evans/workflow-dispatch@v2
         with:
           workflow: Staging Deployment
