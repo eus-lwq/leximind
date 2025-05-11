@@ -53,7 +53,7 @@ resource "openstack_networking_secgroup_rule_v2" "chi_allow_simpleui" {
   security_group_id   = openstack_networking_secgroup_v2.chi_security_group[0].id
 }
 
-resource "openstack_compute_instance_v2" "chi_vm" {
+resource "openstack_compute_instance_v2" "chi_baremetal" {
   count             = local.create_chi_resources
   provider          = openstack.chi
   name              = "chi-serving-vm-${random_string.suffix.result}"
@@ -89,12 +89,16 @@ resource "openstack_compute_floatingip_associate_v2" "chi_floating_ip_associatio
   count         = local.create_chi_resources
   provider      = openstack.chi
   floating_ip   = openstack_networking_floatingip_v2.chi_floating_ip[0].address
-  instance_id   = openstack_compute_instance_v2.chi_vm[0].id
+  instance_id   = openstack_compute_instance_v2.chi_baremetal[0].id
 }
 
 resource "null_resource" "chi_setup" {
   count     = local.create_chi_resources
   depends_on = [openstack_compute_floatingip_associate_v2.chi_floating_ip_association]
+
+  triggers = {
+    instance_id = openstack_compute_instance_v2.chi_baremetal[0].id
+  }
 
   provisioner "remote-exec" {
     connection {
@@ -139,6 +143,7 @@ resource "null_resource" "chi_upload_scripts" {
   depends_on = [null_resource.chi_setup]
 
   triggers = {
+    instance_id = openstack_compute_instance_v2.chi_baremetal[0].id
     file_content_md5 = filemd5("scripts/${each.key}")  # Detects changes in the file
   }
 
@@ -160,6 +165,7 @@ resource "null_resource" "chi_run_model" {
   depends_on = [null_resource.chi_upload_scripts]
   
   triggers = {
+    instance_id = openstack_compute_instance_v2.chi_baremetal[0].id
     file_content_md5 = filemd5("scripts/vllm_serving.sh")  # Detects changes in the file
   }
   
@@ -184,7 +190,8 @@ resource "null_resource" "chi_run_lora" {
   depends_on = [null_resource.chi_upload_scripts]
   
   triggers = {
-    file_content_md5 = filemd5("scripts/vllm_serving.sh")  # Detects changes in the file
+    instance_id = openstack_compute_instance_v2.chi_baremetal[0].id
+    file_content_md5 = filemd5("scripts/vllm_serving_lora_adapter.sh")  # Detects changes in the file
   }
   
   provisioner "remote-exec" {

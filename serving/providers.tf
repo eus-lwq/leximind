@@ -7,6 +7,9 @@ terraform {
         version = "~> 1.53.0"
       }
     }
+  backend "local" {
+    path = "/mnt/ece9183/project/terraform-state/terraform.tfstate"
+  }
 }
 
 # Default provider configuration

@@ -33,7 +33,7 @@ echo "✅ Conda environment ready and activated."
 
 # Install vLLM and dependencies
 echo "📚 Installing vLLM and dependencies..."
-pip install vllm -q
+pip install vllm gradio -q
 pip install git+https://github.com/ChameleonCloud/python-blazarclient.git@chameleoncloud/xena -q
 pip install python-openstackclient -q
 echo "✅ vLLM and dependencies installed."
@@ -61,9 +61,9 @@ done
 
 # Serving the model using vLLM
 echo "🚀 Serving the model using vLLM..."
-tmux new-session -d -s vllm-session "vllm serve \$MODEL_NAME --enable-lora --lora-modules lora_adapter=/home/cc/\$LORA_ADAPTER --dtype=half"
+tmux new-session -d -s vllm-session "vllm serve \$MODEL_NAME --dtype=half --enable-lora --lora-modules leximind=\$HOME/\$LORA_ADAPTER"
 
 # Serving the simple chatui with Gradio
 echo "🚀 Serving the simple chatui with Gradio..."
-tmux new-session -d -s chatui-session "python scripts/gradio-chatbot.py -m /home/cc/\$MODEL_NAME --model-url http://localhost:8000/v1 --port 8001"
+tmux new-session -d -s chatui-session "python scripts/gradio-chatbot.py -m leximind --model-url http://localhost:8000/v1 --port 8001"
 tmux ls
