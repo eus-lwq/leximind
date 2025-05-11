@@ -1,7 +1,9 @@
 name: Chain Deployments
 
 on:
-  workflow_dispatch:  # Allows manual trigger
+  push:
+    branches:
+      - serving_stage_deploy
 
 jobs:
   trigger-staging:
