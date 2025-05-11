@@ -1,0 +1,115 @@
+name: codeqa-etl
+
+volumes:
+  codeqa:
+
+services:
+  extract-codeqa-conala:
+    container_name: etl_extract_codeqa_conala
+    image: python:3.11
+    user: root
+    volumes:
+      - codeqa:/data
+    working_dir: /data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+
+        apt-get update && apt-get install -y unzip curl git
+        pip install gdown requests
+
+        echo "Downloading CodeQA datasets..."
+        gdown --folder 19EHwvREAX8WI3y0QapF5Vz92LarfVG09 --output /data/code_datasets/java
+        gdown --folder 1_Tm4sk5oxAqpBr6AMYt1HKyaaRYRfNaM --output /data/code_datasets/python
+
+        echo "Downloading Conala dataset zip..."
+        curl -L http://www.phontron.com/download/conala-corpus-v1.1.zip -o /data/conala.zip
+        unzip -q /data/conala.zip -d /data/conala_data
+        rm -f /data/conala.zip
+
+        echo "Completed extraction stage."
+
+  transform-combine:
+    container_name: etl_transform_combine
+    image: python:3.11
+    volumes:
+      - codeqa:/data
+    working_dir: /data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        pip install requests
+
+        python3 -c '
+import os, json, random
+
+OUTPUT_DIR = "/data/final_dataset"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# === CodeQA Transform ===
+combined = {"train": [], "test": []}
+for language in ["java", "python"]:
+    for split in ["train", "test"]:
+        base = f"/data/code_datasets/{language}/{split}"
+        try:
+            with open(f"{base}/{split}.question", encoding="utf-8") as fq, \
+                 open(f"{base}/{split}.answer", encoding="utf-8") as fa, \
+                 open(f"{base}/{split}.code", encoding="utf-8") as fc:
+                for q, a, c in zip(fq, fa, fc):
+                    combined[split].append({
+                        "instruction": q.strip(),
+                        "input": c.strip(),
+                        "output": a.strip()
+                    })
+        except FileNotFoundError:
+            continue
+
+# === Conala Transform ===
+for split_file in ["conala-train.json", "conala-test.json"]:
+    path = f"/data/conala_data/conala-corpus/{split_file}"
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+        examples = data.get("examples", data)
+        for item in examples:
+            if item.get("intent") and item.get("snippet"):
+                combined["train" if "train" in split_file else "test"].append({
+                    "instruction": item["intent"].strip(),
+                    "input": "",
+                    "output": item["snippet"].strip()
+                })
+
+# Shuffle and write
+for split in ["train", "test"]:
+    random.shuffle(combined[split])
+    with open(f"{OUTPUT_DIR}/{split}.json", "w", encoding="utf-8") as f:
+        json.dump(combined[split], f, indent=2)
+print("Saved final train and test JSON.")
+        '
+
+        echo "Final dataset location:"
+        ls -l /data/final_dataset
+
+  load-data:
+    container_name: etl_load_data
+    image: rclone/rclone:latest
+    volumes:
+      - codeqa:/data
+      - ~/.config/rclone/rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "Syncing final results to chi_uc:data_project6/data..."
+        rclone copy /data/final_dataset chi_uc:data_project6/data \
+          --progress \
+          --transfers=32 \
+          --checkers=16 \
+          --multi-thread-streams=4 \
+          --fast-list
+
+        echo "Final directory structure in object store:"
+        rclone lsf chi_uc:data_project6/data
