@@ -1,7 +1,10 @@
 name: Canary Deployment
 
 on:
-  workflow_dispatch:  # Allows the workflow to be triggered manually
+  workflow_run:
+    workflows: ["Staging Deployment"]
+    types:
+      - completed
 
 jobs:
   deploy:

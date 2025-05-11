@@ -1,7 +1,10 @@
 name: Production Deployment
 
 on:
-  workflow_dispatch:  # Allows the workflow to be triggered manually
+  workflow_run:
+    workflows: ["Canary Deployment"]
+    types:
+      - completed
 
 jobs:
   deploy:

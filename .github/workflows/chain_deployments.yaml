@@ -1,0 +1,13 @@
+name: Chain Deployments
+
+on:
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  trigger-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Staging Deployment
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          workflow: Staging Deployment
