@@ -43,13 +43,13 @@ def ask_question(request: QueryRequest):
     prompt = create_prompt(contexts, request.question)
 
     # Read the model path from the environment variable
-    model_ver = os.getenv("MODEL_VER", "whole_model")  # Default to "/home/cc/model/whole_model/" if not set
+    model_name = os.getenv("MODEL_NAME", "model/whole_model")  # Default to "/home/cc/model/whole_model/" if not set
 
     # vLLM OpenAI-compatible API endpoint
     response = requests.post(
         "http://llmendpoint:8080/v1/completions",
         json={
-            "model": f"/home/cc/model/{model_ver}/",  # Use the environment variable value
+            "model": f"/home/cc/{model_name}",  # Use the environment variable value
             "prompt": prompt,
             "max_tokens": 500,
             "temperature": 0.7,

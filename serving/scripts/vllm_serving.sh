@@ -48,8 +48,8 @@ set -a  # automatically export all variables
 source /home/cc/scripts/app-cred-uc-openrc.sh
 set +a  # stop automatically exporting
 
-echo $MODEL_VER
-openstack object list leximind_project6 --prefix model/$MODEL_VER/ -f value -c Name | while read object; do
+echo $MODEL_NAME
+openstack object list leximind_project6 --prefix $MODEL_NAME -f value -c Name | while read object; do
   if [[ "$object" != */ ]]; then
     echo "Saving $object..."
     if ! openstack object save leximind_project6 "$object"; then
@@ -60,11 +60,11 @@ done
 
 # Serving the model using vLLM
 echo "🚀 Serving the model using vLLM..."
-tmux new-session -d -s vllm-session "vllm serve /home/cc/model/\$MODEL_VER/ --dtype=half --chat-template /home/cc/scripts/llama3_chat_template.txt"
+tmux new-session -d -s vllm-session "vllm serve /home/cc/\$MODEL_NAME --dtype=half --chat-template /home/cc/scripts/llama3_chat_template.txt"
 tmux ls
 
 
 # Serving the simple chatui with Gradio
 echo "🚀 Serving the simple chatui with Gradio..."
-tmux new-session -d -s chatui-session "python scripts/gradio-chatbot.py -m /home/cc/model/\$MODEL_VER/ --model-url http://localhost:8000/v1 --port 8001"
+tmux new-session -d -s chatui-session "python scripts/gradio-chatbot.py -m /home/cc/\$MODEL_NAME --model-url http://localhost:8000/v1 --port 8001"
 tmux ls

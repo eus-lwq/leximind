@@ -31,7 +31,7 @@ fi
 conda activate fastapi
 echo "✅ Conda environment ready and activated."
 
-echo $MODEL_VER
+echo $MODEL_NAME
 # Install FastAPI and dependencies
 echo "📚 Installing FastAPI and dependencies..."
 pip install -r /home/cc/scripts/requirements.txt -q

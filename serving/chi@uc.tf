@@ -155,8 +155,8 @@ resource "null_resource" "chi_upload_scripts" {
   }
 }
 
-resource "null_resource" "chi_run_server" {
-  count      = local.create_chi_resources
+resource "null_resource" "chi_run_model" {
+  count      = local.is_full_model
   depends_on = [null_resource.chi_upload_scripts]
   
   triggers = {
@@ -173,7 +173,31 @@ resource "null_resource" "chi_run_server" {
     inline = [
       "tmux kill-server",
       "chmod +x /home/cc/scripts/*.sh",
-      "MODEL_VER=${var.model_ver} /home/cc/scripts/vllm_serving.sh",
+      "MODEL_NAME=${var.model_name} /home/cc/scripts/vllm_serving.sh",
+      "cd /home/cc/scripts && docker compose up -d --quiet-pull",
+    ]
+  }
+}
+
+resource "null_resource" "chi_run_lora" {
+  count      = local.is_lora
+  depends_on = [null_resource.chi_upload_scripts]
+  
+  triggers = {
+    file_content_md5 = filemd5("scripts/vllm_serving.sh")  # Detects changes in the file
+  }
+  
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "cc"
+      private_key = file(var.private_key_path)
+      host        = openstack_networking_floatingip_v2.chi_floating_ip[0].address
+    }
+    inline = [
+      "tmux kill-server",
+      "chmod +x /home/cc/scripts/*.sh",
+      "MODEL_NAME=${var.model_name} LORA_ADAPTER=${var.lora_adapter_path} /home/cc/scripts/vllm_serving_lora_adapter.sh",
       "cd /home/cc/scripts && docker compose up -d --quiet-pull",
     ]
   }

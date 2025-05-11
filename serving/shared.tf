@@ -4,7 +4,8 @@ locals {
   create_chi_resources = var.reservation_id != "" ? 1 : 0
   mount_point = "/mnt/block"
   is_destroy = terraform.workspace == "destroy"
-
+  is_lora = (var.lora_adapter_path != "" && var.model_name != "" && var.reservation_id != "") ? 1 : 0
+  is_full_model = (var.lora_adapter_path == "" && var.model_name != "" && var.reservation_id != "") ? 1 : 0
 }
 
 resource "random_string" "suffix" {
