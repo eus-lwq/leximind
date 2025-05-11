@@ -116,6 +116,7 @@ docker rm -f llama-train || true
 
 docker run --gpus all -it --name llama-train \
   -p 5000:5000 \
+  -e WANDB_API_KEY=$WANDB_API_KEY \
   -v ~/llama-factory:/llama-factory \
   llama-env:py310 \
   bash
