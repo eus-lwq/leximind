@@ -12,8 +12,8 @@ To perform inference using a LoRA-finetuned LLaMA model via `llama-factory` and 
 run the following commands and then either log out and back in, or run newgrp docker to apply the change:
 
     ```bash
-    sudo usermod -aG docker $USER
-    newgrp docker
+        sudo usermod -aG docker $USER
+        newgrp docker
     ```
 
 
