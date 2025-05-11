@@ -10,8 +10,14 @@ variable "public_key_path" {
   default     = "id_rsa.pub" // Update with the default path if applicable
 }
 
-variable "llm_endpoint" {
+variable "vllm_endpoint" {
   description = "Endpoint of the model server"
+  type        = string
+  default     = "" // Update with the default path if applicable
+}
+
+variable "fastapi_endpoint" {
+  description = "Endpoint of the fastapi server"
   type        = string
   default     = "" // Update with the default path if applicable
 }

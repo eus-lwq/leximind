@@ -167,8 +167,8 @@ resource "null_resource" "wait_for_grafana" {
   }
 }
 
-resource "null_resource" "create_prometheus_datasource" {
-  count      = var.llm_endpoint != "" ? 1 : 0
+resource "null_resource" "create_vllm_datasource" {
+  count      = var.vllm_endpoint != "" ? 1 : 0
   depends_on = [null_resource.wait_for_grafana]
   provisioner "local-exec" {
     command = <<EOT
@@ -179,7 +179,7 @@ resource "null_resource" "create_prometheus_datasource" {
         "name":"Prometheus",
         "type":"prometheus",
         "access":"proxy",
-        "url":"http://${var.llm_endpoint}:9090",
+        "url":"http://${var.vllm_endpoint}:9090",
         "basicAuth": false,
         "isDefault": true
       }'
@@ -191,6 +191,34 @@ resource "null_resource" "create_prometheus_datasource" {
       -H "Content-Type: application/json" \
       -u admin:admin \
       -d @./scripts/vllm-dashboard.json
+    EOT
+  }
+}
+
+resource "null_resource" "create_fastapi_datasource" {
+  count      = var.fastapi_endpoint != "" ? 1 : 0
+  depends_on = [null_resource.wait_for_grafana]
+  provisioner "local-exec" {
+    command = <<EOT
+    curl -s -X POST ${openstack_networking_floatingip_v2.floating_ip.address}:3000/api/datasources \
+      -H "Content-Type: application/json" \
+      -u admin:admin \
+      -d '{
+        "name":"Prometheus",
+        "type":"prometheus",
+        "access":"proxy",
+        "url":"http://${var.fastapi_endpoint}:9090",
+        "basicAuth": false,
+        "isDefault": true
+      }'
+    EOT
+  }
+  provisioner "local-exec" {
+    command = <<EOT
+    curl -s -X POST ${openstack_networking_floatingip_v2.floating_ip.address}:3000/api/dashboards/import \
+      -H "Content-Type: application/json" \
+      -u admin:admin \
+      -d @./scripts/fastapi-dashboard.json
     EOT
   }
 }
