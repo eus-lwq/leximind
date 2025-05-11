@@ -1,0 +1,10 @@
+{"instruction": "Explain the function 'is_valid_email' in validators.py.", "input": "def is_valid_email(email): ...", "output": "It checks if the email string is in a valid format using regex and returns True or False."}
+{"instruction": "What does the function 'calculate_discount' do?", "input": "def calculate_discount(price, rate): ...", "output": "It applies the discount rate to the price and returns the discounted amount."}
+{"instruction": "Describe the purpose of 'tokenize_sentences' in nlp_utils.py.", "input": "def tokenize_sentences(text): ...", "output": "It splits a block of text into individual sentences using NLTK."}
+{"instruction": "What is 'fetch_user_profile' used for?", "input": "def fetch_user_profile(user_id): ...", "output": "It retrieves user profile data from the database based on user ID."}
+{"instruction": "Explain 'sort_products' in terms of parameters and return value.", "input": "def sort_products(products, key): ...", "output": "It sorts a list of product dictionaries using a given key such as price or rating."}
+{"instruction": "Summarize the function 'merge_dicts'.", "input": "def merge_dicts(a, b): ...", "output": "It merges two dictionaries and returns a single combined dictionary with keys from both."}
+{"instruction": "What is the use of 'log_error' function?", "input": "def log_error(message): ...", "output": "It writes error messages to a log file with timestamps."}
+{"instruction": "Interpret the 'send_notification' function behavior.", "input": "def send_notification(user, msg): ...", "output": "It sends a notification message to a user through email or in-app service."}
+{"instruction": "Why use the 'hash_password' function?", "input": "def hash_password(password): ...", "output": "It securely hashes a password using bcrypt before storing it in the database."}
+{"instruction": "Describe the logic behind 'paginate_results'.", "input": "def paginate_results(results, page, size): ...", "output": "It returns a subset of results corresponding to the current page and page size."}
