@@ -45,49 +45,49 @@ services:
         pip install requests
 
         python3 -c '
-import os, json, random
+        import os, json, random
 
-OUTPUT_DIR = "/data/final_dataset"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+        OUTPUT_DIR = "/data/final_dataset"
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# === CodeQA Transform ===
-combined = {"train": [], "test": []}
-for language in ["java", "python"]:
-    for split in ["train", "test"]:
-        base = f"/data/code_datasets/{language}/{split}"
-        try:
-            with open(f"{base}/{split}.question", encoding="utf-8") as fq, \
-                 open(f"{base}/{split}.answer", encoding="utf-8") as fa, \
-                 open(f"{base}/{split}.code", encoding="utf-8") as fc:
-                for q, a, c in zip(fq, fa, fc):
-                    combined[split].append({
-                        "instruction": q.strip(),
-                        "input": c.strip(),
-                        "output": a.strip()
-                    })
-        except FileNotFoundError:
-            continue
+        # === CodeQA Transform ===
+        combined = {"train": [], "test": []}
+        for language in ["java", "python"]:
+            for split in ["train", "test"]:
+                base = f"/data/code_datasets/{language}/{split}"
+                try:
+                    with open(f"{base}/{split}.question", encoding="utf-8") as fq, \
+                        open(f"{base}/{split}.answer", encoding="utf-8") as fa, \
+                        open(f"{base}/{split}.code", encoding="utf-8") as fc:
+                        for q, a, c in zip(fq, fa, fc):
+                            combined[split].append({
+                                "instruction": q.strip(),
+                                "input": c.strip(),
+                                "output": a.strip()
+                            })
+                except FileNotFoundError:
+                    continue
 
-# === Conala Transform ===
-for split_file in ["conala-train.json", "conala-test.json"]:
-    path = f"/data/conala_data/conala-corpus/{split_file}"
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-        examples = data.get("examples", data)
-        for item in examples:
-            if item.get("intent") and item.get("snippet"):
-                combined["train" if "train" in split_file else "test"].append({
-                    "instruction": item["intent"].strip(),
-                    "input": "",
-                    "output": item["snippet"].strip()
-                })
+        # === Conala Transform ===
+        for split_file in ["conala-train.json", "conala-test.json"]:
+            path = f"/data/conala_data/conala-corpus/{split_file}"
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+                examples = data.get("examples", data)
+                for item in examples:
+                    if item.get("intent") and item.get("snippet"):
+                        combined["train" if "train" in split_file else "test"].append({
+                            "instruction": item["intent"].strip(),
+                            "input": "",
+                            "output": item["snippet"].strip()
+                        })
 
-# Shuffle and write
-for split in ["train", "test"]:
-    random.shuffle(combined[split])
-    with open(f"{OUTPUT_DIR}/{split}.json", "w", encoding="utf-8") as f:
-        json.dump(combined[split], f, indent=2)
-print("Saved final train and test JSON.")
+        # Shuffle and write
+        for split in ["train", "test"]:
+            random.shuffle(combined[split])
+            with open(f"{OUTPUT_DIR}/{split}.json", "w", encoding="utf-8") as f:
+                json.dump(combined[split], f, indent=2)
+        print("Saved final train and test JSON.")
         '
 
         echo "Final dataset location:"
