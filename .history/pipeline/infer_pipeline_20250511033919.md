@@ -1,0 +1,62 @@
+# LLaMA Inference Quick Guide
+
+To perform inference using a LoRA-finetuned LLaMA model via `llama-factory` and `vLLM`, follow the steps below.
+
+1. Clone the repository:
+
+    ```bash
+    git clone git@github.com:Yuan-33/llama-factory.git
+    ```
+
+2. Install dependencies:
+
+    ```bash
+    bash setup_infer.sh
+    ```
+
+3. Export your Hugging Face token (required to access the base model):
+
+    ```bash
+    export hf=***  # replace with your actual token
+    ```
+
+4. Merge the base model and LoRA adapter.
+
+    If `llama-factory/output/lora` does not exist, download the LoRA weights from Chameleon UC:
+
+    https://chi.uc.chameleoncloud.org/project/containers/container/project6_model/lora
+
+    Then, inside the container (`llama-train`), run:
+
+    ```bash
+    python3 /llama-factory/utils/merge.py
+    ```
+
+    This will generate `llama-factory/merged_model`.
+
+5. Start the inference server using vLLM:
+
+    ```bash
+    python3 -m vllm.entrypoints.openai.api_server \
+      --model ./merged_model \
+      --dtype float16 \
+      --port 8000 \
+      --tokenizer ./merged_model
+    ```
+
+6. Send a request using curl:
+
+    ```bash
+    curl http://localhost:8000/v1/completions \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "./merged_model",
+        "prompt": "Instruction: What list in an environment?\nInput: def list_states saltenv '\''base'\'' return __context__['\''fileclient''] list_states saltenv\nOutput:",
+        "max_tokens": 128,
+        "temperature": 0.6
+      }'
+    ```
+
+7. The model will respond with an answer based on your input prompt.
+
+> Make sure your GPU supports float16 (like RTX 6000), and that the merged model directory is correct.

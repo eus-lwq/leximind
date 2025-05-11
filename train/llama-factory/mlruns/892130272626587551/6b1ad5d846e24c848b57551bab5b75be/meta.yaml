@@ -1,0 +1,15 @@
+artifact_uri: /llama-factory/mlruns/892130272626587551/6b1ad5d846e24c848b57551bab5b75be/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '892130272626587551'
+lifecycle_stage: active
+run_id: 6b1ad5d846e24c848b57551bab5b75be
+run_name: llama3-8b-lora-myalpaca2-v2
+run_uuid: 6b1ad5d846e24c848b57551bab5b75be
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746582503354
+status: 1
+tags: []
+user_id: root
