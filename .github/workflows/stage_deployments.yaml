@@ -33,7 +33,7 @@ jobs:
           source ~/miniconda/etc/profile.d/conda.sh
           conda activate leximind
           terraform version 
-          
+
   staging:
     runs-on: [self-hosted, x64]
     steps:
@@ -68,15 +68,24 @@ jobs:
       
       - name: Terraform Init
         working-directory: serving
-        run: terraform init
+        run: |
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform init
 
       - name: Terraform Validate
         working-directory: serving
-        run: terraform validate
+        run: |
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform validate
 
       - name: Terraform Plan
         working-directory: serving
-        run: terraform plan -var-file ./use-cases/staging.tfvars | grep -E "Plan:|No changes|Error|#"
+        run: |
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform plan -var-file ./use-cases/staging.tfvars | grep -E "Plan:|No changes|Error|#"
 
       - name: Wait for Approval
         if: always()
@@ -86,7 +95,10 @@ jobs:
 
       - name: Terraform Apply
         working-directory: serving
-        run: terraform apply -var-file ./use-cases/staging.tfvars -auto-approve
+        run: |
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform apply -var-file ./use-cases/staging.tfvars -auto-approve
 
   canary:
     runs-on: [self-hosted, x64]
