@@ -3,6 +3,52 @@ import numpy as np
 import time
 import concurrent.futures
 import requests
+import subprocess
+
+VLLM_SERVER_COMMAND = [
+    "python",
+    "-m",
+    "vllm.entrypoints.openai.api_server",
+    "--model",
+    "./merged_model",  # Path to the model
+    "--port",
+    "8000"
+]
+VLLM_HEALTH_URL = "http://localhost:8000/health"
+MAX_RETRIES = 10  # Increased max retries to 10
+RETRY_INTERVAL = 10  # seconds
+
+
+@pytest.fixture(scope="session", autouse=True)
+def start_vllm_server():
+    """
+    Fixture to start the vLLM server before running the tests and stop it afterward.
+    """
+    print("Starting vLLM server...")
+    process = subprocess.Popen(VLLM_SERVER_COMMAND, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Wait for the server to be ready
+    for attempt in range(MAX_RETRIES):
+        print(f"Waiting for vLLM server to be ready (attempt {attempt + 1}/{MAX_RETRIES})...")
+        time.sleep(RETRY_INTERVAL)
+        try:
+            response = requests.get(VLLM_HEALTH_URL, timeout=5)
+            if response.status_code == 200:
+                print("vLLM server is ready.")
+                break
+        except requests.RequestException:
+            print("vLLM server is not ready yet.")
+    else:
+        process.terminate()
+        raise RuntimeError("vLLM server failed to start after multiple attempts.")
+
+    yield  # Run the tests
+
+    # Stop the server after tests
+    print("Stopping vLLM server...")
+    process.terminate()
+    process.wait()
+
 
 def send_request(prompt, max_tokens, server_url="http://localhost:8000/generate"):
     """
@@ -32,6 +78,7 @@ def send_request(prompt, max_tokens, server_url="http://localhost:8000/generate"
     except requests.RequestException:
         latency = time.time() - start_time
         return latency, False
+
 
 def run_load_test(config):
     """
@@ -85,6 +132,7 @@ def run_load_test(config):
         "success_rate": success_count / num_requests
     }
 
+
 @pytest.mark.parametrize("num_requests,max_tokens,throughput_threshold", [
     (10, 32, 5),    # Small test, low threshold
     (50, 64, 3),    # Medium test, moderate threshold
@@ -109,6 +157,7 @@ def test_run_load_test_throughput(num_requests, max_tokens, throughput_threshold
     assert results["avg_latency"] > 0
     assert results["p95_latency"] > 0
     assert results["success_rate"] > 0.0
+
 
 def test_run_load_test_real_server():
     """

@@ -23,7 +23,11 @@ jobs:
           mkdir -p ~/.config/openstack
           echo "${{ secrets.clouds_yaml }}" > ~/.config/openstack/clouds.yaml
           chmod 600 ~/.config/openstack/clouds.yaml
-          cat ~/.config/openstack/clouds.yaml
+      
+      - name: Setup CHI@UC app cred 
+        run: |
+          mkdir -p serving/scripts
+          echo "${{ secrets.chi_uc_openrc_sh }}" > serving/scripts/app-cred-uc-openrc.sh
 
       - name: Terraform Version
         working-directory: serving
@@ -31,11 +35,25 @@ jobs:
           source ~/miniconda/etc/profile.d/conda.sh
           conda activate leximind
           terraform version 
+      
+      - name: Terraform Init
+        working-directory: serving
+        run: terraform init
 
-      # - name: Terraform Plan
-      #   working-directory: serving
-      #   run: terraform plan 
+      - name: Terraform Validate
+        working-directory: serving
+        run: terraform validate
 
-      # - name: Terraform Apply
-      #   working-directory: serving
-      #   run: terraform apply -auto-approve
+      - name: Terraform Plan
+        working-directory: serving
+        run: terraform plan -var-file ./use-cases/fastapi+lora_model.tfvars | grep -E "Plan:|No changes|Error|#"
+
+      - name: Wait for Approval
+        if: always()
+        uses: hmarr/auto-approve-action@v2
+        with:
+          approval_comment: "Please approve this step to proceed with Terraform Apply."
+
+      - name: Terraform Apply
+        working-directory: serving
+        run: terraform apply -var-file ./use-cases/fastapi+lora_model.tfvars -auto-approve

@@ -154,7 +154,7 @@ output "kvm_volume_mount_info" {
 data "external" "kvm_mount_volume" {
   depends_on = [null_resource.kvm_upload_scripts]
   count   = local.create_kvm_resources > 0 && !local.is_destroy ? 1 : 0
-  program = [var.python_path, "${path.module}/misc/mount_volume.py", "KVM@TACC", openstack_compute_instance_v2.kvm_vm[0].id, var.vol_uuid]
+  program = [var.python_path, "${path.module}/../misc/mount_volume.py", "KVM@TACC", openstack_compute_instance_v2.kvm_vm[0].id, var.vol_uuid]
 }
 
 resource "null_resource" "kvm_mount_volume" {
