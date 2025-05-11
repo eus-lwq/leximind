@@ -75,6 +75,6 @@ CUDA_VISIBLE_DEVICES=0 python3 src/train.py \
   --plot_loss \
   --metric_for_best_model loss \
   --lora_rank 8 \
-  --lora_target "q_proj,k_proj,v_proj,o_proj"
+  --lora_target "q_proj,k_proj,v_proj,o_projj"
 
 
