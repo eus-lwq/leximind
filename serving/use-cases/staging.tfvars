@@ -1,0 +1,8 @@
+stage            = "staging"
+model_name       = "my_model_v1"
+private_key_path = "/path/to/staging/private_key"
+public_key_path  = "/path/to/staging/public_key"
+reservation_id   = "staging-reservation-id"
+vol_uuid         = "staging-volume-uuid"
+python_path      = "/usr/bin/python3"
+lora_adapter_path = ""
