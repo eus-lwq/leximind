@@ -87,11 +87,11 @@ jobs:
           conda activate leximind
           terraform plan -var-file ./use-cases/staging.tfvars | grep -E "Plan:|No changes|Error|#"
 
-      - name: Wait for Approval
-        if: always()
-        uses: hmarr/auto-approve-action@v2
-        with:
-          approval_comment: "Please approve this step to proceed with Terraform Apply."
+      # - name: Wait for Approval
+      #   if: always()
+      #   uses: hmarr/auto-approve-action@v2
+      #   with:
+      #     approval_comment: "Please approve this step to proceed with Terraform Apply."
 
       - name: Terraform Apply
         working-directory: serving
