@@ -112,7 +112,7 @@ For fine-tuning Llama 3.1 using LLaMa factory, we transform the data to the alpa
 
 Here is the Docker compose file that implements this: [ETL CodeQA](https://github.com/eus-lwq/leximind/blob/data/data/data_pipeline/docker-compose-etl.yaml)
 
-##3.3.2 RAG Pipeline:
+## 3.3.2 RAG Pipeline:
 
 The RAG pipeline converts the GitHub repository documentation into vector embeddings and stores them in block storage. This data is later used as context during inference while querying the LLM. 
 
