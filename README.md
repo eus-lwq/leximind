@@ -1,6 +1,7 @@
 # Leximind
 
 A question answering platform designed to answer junior developers' coding, general, and onboarding questions to reduce learning time and learning curve when contributing to open source projects.
+
 <img width="548" alt="Screenshot 2025-05-11 at 11 31 25 PM" src="https://github.com/user-attachments/assets/258fdce4-9587-45f1-96db-1302a79c2de6" />
 
 ## Team Members
