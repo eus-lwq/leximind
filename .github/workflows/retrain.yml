@@ -1,0 +1,132 @@
+name: Weekly Model Retraining Pipeline
+
+on:
+  schedule:
+    - cron: "0 2 * * 0"  # Every Sunday at 2:00 AM UTC
+
+jobs:
+  deploy_env:
+    runs-on: [self-hosted, x64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH keys
+        run: |
+          mkdir -p serving
+          echo "${{ secrets.id_rsa }}" > serving/id_rsa
+          echo "${{ secrets.id_rsa_pub }}" > serving/id_rsa.pub
+          chmod 600 serving/id_rsa
+          chmod 644 serving/id_rsa.pub
+
+      - name: Setup OpenStack configuration
+        run: |
+          mkdir -p ~/.config/openstack
+          echo "${{ secrets.CLOUDS_YAML_COMBINED }}" > ~/.config/openstack/clouds.yaml
+          chmod 600 ~/.config/openstack/clouds.yaml
+      
+      - name: Setup CHI@UC app cred 
+        run: |
+          mkdir -p serving/scripts
+          echo "${{ secrets.CHI_UC_OPENRC_SH }}" > serving/scripts/app-cred-uc-openrc.sh
+
+      - name: Terraform Version
+        working-directory: serving
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform version 
+
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run model training
+        run: |
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+
+          python train/train_model.py
+      - name: Save trained model artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: trained-model
+          path: /llama-factory/output/lora
+
+  offline-eval:
+    needs: retrain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download trained model
+        uses: actions/download-artifact@v3
+        with:
+          name: trained-model
+          path: /llama-factory/output/lora
+      - name: Run offline evaluation
+        run: |
+          python misc/evaluate_model.py
+      - name: Build Docker image
+        run: |
+          docker build -t mymodel:${{ github.sha }} .
+          docker push mymodel:${{ github.sha }}
+
+  deploy_serving:
+    runs-on: [self-hosted, x64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH keys
+        run: |
+          mkdir -p serving
+          echo "${{ secrets.id_rsa }}" > serving/id_rsa
+          echo "${{ secrets.id_rsa_pub }}" > serving/id_rsa.pub
+          chmod 600 serving/id_rsa
+          chmod 644 serving/id_rsa.pub
+
+      - name: Setup OpenStack configuration
+        run: |
+          mkdir -p ~/.config/openstack
+          echo "${{ secrets.CLOUDS_YAML_COMBINED }}" > ~/.config/openstack/clouds.yaml
+          chmod 600 ~/.config/openstack/clouds.yaml
+      
+      - name: Setup CHI@UC app cred 
+        run: |
+          mkdir -p serving/scripts
+          echo "${{ secrets.CHI_UC_OPENRC_SH }}" > serving/scripts/app-cred-uc-openrc.sh
+
+      - name: Terraform Version
+        working-directory: serving
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform version 
+      
+      - name: Terraform Init
+        working-directory: serving
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform init
+
+      - name: Terraform Validate
+        working-directory: serving
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform validate
+
+      - name: Terraform Plan
+        working-directory: serving
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform plan -var-file ./use-cases/fastapi.tfvars | grep -E "Plan:|No changes|Error|#"
+
+      - name: Terraform Apply
+        working-directory: serving
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform apply -var-file ./use-cases/fastapi.tfvars -auto-approve
