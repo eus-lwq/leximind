@@ -1,0 +1,42 @@
+version: '3.9'
+
+volumes:
+  codeqa:
+    external: true
+
+services:
+  init-codeqa:
+    image: python:3.10
+    volumes:
+      - codeqa:/data
+    working_dir: /data
+    command:
+      - bash
+      - -c
+      - |
+        set -e
+        echo "Installing gdown..."
+        pip install --quiet gdown
+        
+        echo "Downloading codeqa.zip from Google Drive..."
+        gdown --id 1vqeXmwJ2wKMD3xL2GAZJssOREot7k6mU -O codeqa.zip
+        
+        echo "Extracting codeqa.zip..."
+        apt-get update && apt-get install -y unzip
+        mkdir -p codeqa
+        unzip -q codeqa.zip
+        # Check what files we have
+        echo "Files after unzipping:"
+        ls -la
+        # Move any JSON files to codeqa directory
+        if ls *.json 1> /dev/null 2>&1; then
+          mv *.json codeqa/
+        fi
+        # Try to move any other extracted files
+        find . -type f -not -name "codeqa.zip" -not -path "./codeqa/*" -exec mv {} codeqa/ \;
+        # Check what's in the codeqa directory
+        echo "Contents of codeqa directory:"
+        ls -la codeqa/
+        
+        echo "Dataset codeqa setup complete at /data/codeqa"
+    restart: "no"

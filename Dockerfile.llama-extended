@@ -1,0 +1,77 @@
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    build-essential \
+    wget \
+    git \
+    curl \
+    jq \
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libffi-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    liblzma-dev \
+    uuid-dev \
+    xz-utils \
+    sudo \
+    gnupg2 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN cd /usr/src && \
+    wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
+    tar xzf Python-3.10.12.tgz && \
+    cd Python-3.10.12 && \
+    ./configure --enable-optimizations && \
+    make -j$(nproc) && \
+    make altinstall
+
+RUN ln -sf /usr/local/bin/python3.10 /usr/bin/python && \
+    ln -sf /usr/local/bin/python3.10 /usr/bin/python3 && \
+    ln -sf /usr/local/bin/pip3.10 /usr/bin/pip
+
+# Upgrade pip and install PyTorch
+RUN pip install --upgrade pip
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Install ML dependencies (except flash-attn)
+RUN pip install \
+    "ray[default,tune]==2.42.1" \
+    transformers \
+    datasets \
+    accelerate \
+    peft \
+    trl \
+    deepspeed \
+    bitsandbytes \
+    vllm \
+    python-dotenv \
+    wandb \
+    scikit-learn \
+    sentencepiece \
+    scipy \
+    tqdm \
+    evaluate \
+    matplotlib
+
+RUN pip install datasets==3.5.0 \
+    peft==0.15.1 \
+    trl==0.9.6 \
+    matplotlib
+# # Install flash-attn after torch is available
+# RUN pip install flash-attn
+
+# Clone llama-factory
+RUN git clone https://github.com/Yuan-33/llama-factory.git /llama-factory
+
+# Create and set working directory
+WORKDIR /llama-factory
+
+# Create directory for Ray scripts
+RUN mkdir -p /ray_scripts
+
+CMD ["bash"]

@@ -1,3 +1,5 @@
+.env
+/datasets
 ###   ============= System BEGIN =============   ###
 .DS_Store
 Thumbs.db
@@ -54,4 +56,3 @@ terraform.rc
 **/clouds.yaml
 **/id_rsa*
 **/app*.sh
-
