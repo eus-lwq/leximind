@@ -130,6 +130,8 @@ Here is the folder that implements this: [RAG pipeline](https://github.com/eus-l
 - Ensuring no mixing of testing/training data
 
 ## 4.1 Modeling
+Our model takes a natural language question as input, such as “What does this function do?”, and uses it to retrieve related content from code and documentation. This context, together with the question, is passed to a fine-tuned LLaMA model which generates a natural language answer. The process helps developers quickly understand code by providing accurate, context-aware explanations.
+
 <img width="1253" alt="Screenshot 2025-05-11 at 11 59 08 PM" src="https://github.com/user-attachments/assets/4ec65d71-62ff-4d7d-8fc4-894266d68c5e" />
 We fine-tune the LLaMA-3-8B-Instruct model using the llama-factory framework with the CodeQA dataset formatted in Alpaca-style instruction-based JSON. Training is performed on a single A100 GPU, which provides sufficient capacity for efficient fine-tuning. The LLaMA-3-8B architecture strikes a balance between performance and resource efficiency, making it well-suited for understanding and answering developer-level questions about source code. This setup enables the model to generate accurate and context-aware responses based on code-related prompts.
 
