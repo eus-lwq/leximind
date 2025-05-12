@@ -212,7 +212,7 @@ We use Ray train to schedule training jobs along with grafana and mlflow for tra
 ![image](https://github.com/user-attachments/assets/94c29b6a-c41c-4664-ac61-3841a5dcd4ff)
 
 ## 5.1 Serving from an API point
-- serving endpoint: vLLM serving point + Fast API
+- serving endpoint: [vLLM serving point](https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/vllm_serving_lora_adapter.sh) + [Fast API](https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/app.py)
 - input: user input query. e.g question to the repository
 - output:answer from llm model
 <img width="1096" alt="Screenshot 2025-05-11 at 8 11 35 PM" src="https://github.com/user-attachments/assets/9bedb0b4-a48e-4fa4-884e-e0fe7a1fc303" />
