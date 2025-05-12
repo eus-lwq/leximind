@@ -218,6 +218,55 @@ The effectiveness of our AI assistant can be evaluated based on its impact on de
 - GPU inference with vLLM: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/inference/infer.py
 allow inference in CPU with transformer and GPU with vLLM/transformer: https://github.com/eus-lwq/leximind/blob/dev_eric/infer_pipeline/docker-compose.cpu.yml
 
+## 6.1 Staged deployment
+we put our token/ api keys into repository secret so that runner can use the secret to configure chameleon clouds yaml and keys directly.
+<img width="919" alt="Screenshot 2025-05-11 at 9 24 36 PM" src="https://github.com/user-attachments/assets/6c706371-869c-4393-8a52-5e19f06c7987" />
+
+Three stage deployment: 
+https://github.com/eus-lwq/leximind/blob/serving_stage_deploy/.github/workflows/stage_deployments.yaml
+<img width="979" alt="Screenshot 2025-05-11 at 9 25 25 PM" src="https://github.com/user-attachments/assets/19321426-c22b-435f-8dc0-3415457446b3" />
+it's showing fail because currently there's out of KVM@TACC floating point to use...
+
+## 7.1 Online Data 
+read fast api post request from serving site and save to MinIO object store automatically
+fastapi post (ask) will store the user query and model answer to minio bucket storage: 
+https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/app.py#L40
+New data store:
+https://github.com/eus-lwq/leximind/blob/feedback_loop/label_pipeline/app_labelstudio.py#L86
+storage format: 
+<img width="612" alt="Screenshot 2025-05-11 at 9 26 19 PM" src="https://github.com/user-attachments/assets/6dfd2482-aae4-43de-8804-6a37e01d3d4c" />
+buckets in MiniO:
+<img width="694" alt="Screenshot 2025-05-11 at 9 26 38 PM" src="https://github.com/user-attachments/assets/0f2f34f2-a3ab-4bb0-bdae-2d1922c50ae3" />
+<img width="685" alt="Screenshot 2025-05-11 at 9 26 49 PM" src="https://github.com/user-attachments/assets/42af1ff3-d87c-4dc5-bb2a-c2c8e945c117" />
+<img width="858" alt="Screenshot 2025-05-11 at 9 27 03 PM" src="https://github.com/user-attachments/assets/8d4aef43-603a-4cc1-92b2-4689b44d0048" />
+
+## 8.1 Online evaluation/Close the loop
+- we are using the label studio + minio to collect and fix the answer correctness of model output
+<img width="904" alt="Screenshot 2025-05-11 at 9 27 33 PM" src="https://github.com/user-attachments/assets/78c96d38-8ff7-4991-8a09-b6c3ad29f21f" />
+Code: https://github.com/eus-lwq/leximind/tree/feedback_loop/label_pipeline
+
+## 9.1 CI/CD and continuous training
+-
+
+## 10.1 further thoughts and lesson learned
+- challenge 1: evaluation on llm result when we extracted low quality github issues, and using documentation to rag probably not enough to solve some issue
+- thoughts: probably use stackoverflow + slack channel Q&A + discord Q&A + twitter + youtube channel in the future
+
+- challenge 2: data is from very different sources hard to preprocess at once
+- thoughts: process differently with different process logic, using lfs/jsonl processor to process hugging face datasets, using simple cleaner to clean some formatted kaggle datasets
+
+- challenge 3: 7b model maybe not good enough to retrieve and answer questions very accurately due to its context window length
+- thoughts: using an API like OpenAI/Anthropic API directly can reduce the costs of model storage, inference, and also get longer context window, higher quality model answers.
+
+- challenge 4: data from github issue is not well-formatted, sometimes the question is not actually resolved it just closed due to a feature being added, this is not a bug..etc. sometimes they have multiple threads discussing the problem but nobody gave a correct final answer.
+- thoughts: using stackoverflow qa at least they will give answer, not just discussion
+
+
+
+
+
+
+
 
 
 
