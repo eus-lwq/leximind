@@ -36,7 +36,7 @@ A question answering platform designed to answer junior developers' coding, gene
 ## 2.2 Infrastructure and Infrastructure-as-Code
 
 - **Bootstrapping with Python-CHI**: [Project Bootstrapping Notebook](https://github.com/eus-lwq/leximind/blob/dev_infra/project6_bootstrapping.ipynb)
-- **Bootstrapping with Terraform**: [Terraform Configuration](https://github.com/eus-lwq/leximind/blob/serving/serving/main.tf)
+- **Bootstrapping with Terraform**: [Terraform Configuration](https://github.com/eus-lwq/leximind/tree/serving/serving)
 - **Docker for Training**: [Training Docker Compose](https://github.com/eus-lwq/leximind/blob/dev_infra/docker-compose.yaml)
 - **Docker for Serving**: [Serving Script](https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/vllm_serving.sh)
 
