@@ -130,6 +130,8 @@ Here is the folder that implements this: [RAG pipeline](https://github.com/eus-l
 
 Our modeling approach treats the task as an instruction-based generation problem, where the model receives a natural language question about source code—often related to a function, class, or file—and produces a detailed, context-aware answer that may include explanations or relevant code. To support this, we fine-tune LLaMA-3-8B-Instruct. Its architecture is well-suited for tasks that require structured reasoning over programming logic. Compared to larger variants (e.g., 13B or 70B), the 8B model offers sufficient capacity for deep code understanding while remaining lightweight enough for efficient fine-tuning and inference on a single A100 GPU.
 
+Our model is stored in the object store container at CHI@UC, which can later be used for serving and inference. You can find the model [here](https://chi.uc.chameleoncloud.org/project/containers/container/project6_model)
+
 By training on Q&A pairs, the model is adapted to understand project-specific codebases and respond accurately to developer-level technical questions. It also integrates a retrieval-augmented generation (RAG) pipeline, enabling real-time grounding of responses in live documentation or source files. Overall, this architecture provides a scalable and effective solution for building domain-adapted code assistants.
 
 ## 4.2 Train and re-train
@@ -137,6 +139,8 @@ By training on Q&A pairs, the model is adapted to understand project-specific co
 In our project, we train and retrain a large language model using a custom instruction-following dataset derived from the CodeQA benchmark. CodeQA contains question–answer pairs grounded in source code written in Python and Java. We converted these examples into the Alpaca format (instruction–input–output) to support instruction tuning. The resulting dataset, includes approximately 60,000 question–answer pairs, and enables the model to learn how to answer natural language questions about real-world code functions, files, and APIs.
 
 The base model is Meta-LLaMA-3-8B-Instruct, an 8B-parameter decoder-only transformer released by Meta. We fine-tune this model using LoRA for parameter-efficient training, and we use bf16 mixed-precision with gradient accumulation to fit the training process on a single A100 80GB GPU (compute-gigaio node) on Chameleon Cloud.
+
+You can find the training details [here](https://github.com/eus-lwq/leximind/blob/dev_eric/pipeline/train_pipeline.md)
 
 We retrain with new production data by collecting user feedback in a separate file (feedback_data/pending.jsonl). A scheduled pipeline checks this file daily using a cron job. If more than 1000 new samples are detected, the pipeline automatically merges them into the training dataset and launches a new training run using train.sh.
 
