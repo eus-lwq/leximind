@@ -239,8 +239,29 @@ We use Ray train to schedule training jobs along with grafana and mlflow for tra
 - Lower per-request latency in high-concurrency scenarios due to amortized compute costs.
 
 ## 5.5 Offline evaluation of model (Offline)
+- offline predict script: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/test/predict.sh
 - offline evaluation on llm output and compare with commercial model: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py
 - test score: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_score.py
+### Model Evaluation Summary (Prediction Phase)
+During the prediction phase, we assessed the performance of our fine-tuned **LLaMA-based model** using both standard automatic metrics and semantic similarity analysis. The results demonstrate promising generalization and meaningful language understanding, with clear potential for further refinement.
+
+#### 📈 Automatic Generation Metrics
+- **BLEU-4:** 26.03  
+  *A solid score that reflects the model’s ability to generate n-gram overlaps with reference outputs. While there's space for improvement, this indicates the model often captures key phrases or structure correctly.*
+
+- **ROUGE Scores:**
+  - **ROUGE-1:** 38.61  
+  - **ROUGE-2:** 16.17  
+  - **ROUGE-L:** 36.58  
+  *These scores show that the model retains a strong ability to reflect relevant content (unigrams) and captures some phrase-level structure (ROUGE-L). The moderate ROUGE-2 suggests that fluency and phrase continuity are being learned, but could benefit from further optimization.*
+
+### 🧠 Semantic Similarity (OpenAI Embeddings)
+- **Average Embedding Similarity:** 0.559 (using `text-embedding-3-small`)  
+  *This similarity score indicates that the model’s predictions are, on average, semantically aligned with the ground truth. The outputs tend to convey the correct intent, even in cases where exact wording differs—suggesting effective instruction comprehension.*
+
+### ⚙️ Runtime and Throughput
+- **Throughput:** 1.10 samples/sec | 0.143 steps/sec  
+- **Total Runtime:** ~90 seconds for 100 samples
 
 ## 5.6 Load test in staging (Online)
 - load test on 10 request per sec: https://github.com/eus-lwq/leximind/blob/serving/optimization/load_test/test_simple_load_test.py
@@ -251,7 +272,6 @@ The effectiveness of our AI assistant can be evaluated based on its impact on de
 - **Accepted PRs (6 months):** Measures the number of successfully merged pull requests, indicating improved developer output.
 - **Time to First Contribution:** Tracks how quickly new developers make their first accepted PR, reflecting faster onboarding.
 - **Search-to-PR Conversion Rate:** Measures how often developers using the assistant proceed to make successful contributions.
-
 
 ## 5.8 (optional difficult point) Multiple options for serving
 - CPU inference with transformer: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/inference/infer_no_vllm.py
@@ -285,10 +305,7 @@ buckets in MiniO:
 <img width="904" alt="Screenshot 2025-05-11 at 9 27 33 PM" src="https://github.com/user-attachments/assets/78c96d38-8ff7-4991-8a09-b6c3ad29f21f" />
 Code: https://github.com/eus-lwq/leximind/tree/feedback_loop/label_pipeline
 
-## 9.1 CI/CD and continuous training
--
-
-## 10.1 further thoughts and lesson learned
+## 9.1 further thoughts and lesson learned
 - challenge 1: evaluation on llm result when we extracted low quality github issues, and using documentation to rag probably not enough to solve some issue
 - thoughts: probably use stackoverflow + slack channel Q&A + discord Q&A + twitter + youtube channel in the future
 
