@@ -1,0 +1,15 @@
+artifact_uri: /llama-factory/mlruns/892130272626587551/c115f5c4ebb94c75bcef57345b1215b3/artifacts
+end_time: 1746595766211
+entry_point_name: ''
+experiment_id: '892130272626587551'
+lifecycle_stage: active
+run_id: c115f5c4ebb94c75bcef57345b1215b3
+run_name: bouncy-wasp-489
+run_uuid: c115f5c4ebb94c75bcef57345b1215b3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746595766187
+status: 3
+tags: []
+user_id: root
