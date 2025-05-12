@@ -194,7 +194,7 @@ To train LLaMA-3-8B-Instruct model, we applied several strategies to decrease th
 
 
 ## 4.5 Experiment tracking 
-We use Ray train to schedule training jobs along with grafana and mlflow for tracking the various experiments.
+We use Ray train to schedule training jobs along with grafana and minio for tracking the various experiments.
 
 1. [Ray training monitoring compose file](https://github.com/eus-lwq/leximind/blob/dev_infra/docker-compose.yaml)
 
