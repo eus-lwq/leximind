@@ -39,12 +39,21 @@ jobs:
 
       - name: Terraform Validate
         working-directory: monitoring
-        run: terraform validate
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform validate
 
       - name: Terraform Plan
         working-directory: monitoring
-        run: terraform plan -var-file ./use-cases/fastapi.tfvars | grep -E "Plan:|No changes|Error|#"
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform plan -var-file var.tfvars | grep -E "Plan:|No changes|Error|#"
 
       - name: Terraform Apply
         working-directory: monitoring
-        run: terraform apply -var-file ./use-cases/fastapi.tfvars -auto-approve
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform apply -var-file var.tfvars -auto-approve

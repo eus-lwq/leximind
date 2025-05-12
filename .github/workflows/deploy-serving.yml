@@ -40,16 +40,28 @@ jobs:
       
       - name: Terraform Init
         working-directory: serving
-        run: terraform init
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform init
 
       - name: Terraform Validate
         working-directory: serving
-        run: terraform validate
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform validate
 
       - name: Terraform Plan
         working-directory: serving
-        run: terraform plan -var-file ./use-cases/fastapi.tfvars | grep -E "Plan:|No changes|Error|#"
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform plan -var-file ./use-cases/fastapi.tfvars | grep -E "Plan:|No changes|Error|#"
 
       - name: Terraform Apply
         working-directory: serving
-        run: terraform apply -var-file ./use-cases/fastapi.tfvars -auto-approve
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform apply -var-file ./use-cases/fastapi.tfvars -auto-approve
