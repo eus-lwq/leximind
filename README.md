@@ -130,12 +130,7 @@ Here is the folder that implements this: [RAG pipeline](https://github.com/eus-l
 - Ensuring no mixing of testing/training data
 
 ## 4.1 Modeling
-
-Our modeling approach treats the task as an instruction-based generation problem, where the model receives a natural language question about source code—often related to a function, class, or file—and produces a detailed, context-aware answer that may include explanations or relevant code. To support this, we fine-tune LLaMA-3-8B-Instruct. Its architecture is well-suited for tasks that require structured reasoning over programming logic. Compared to larger variants (e.g., 13B or 70B), the 8B model offers sufficient capacity for deep code understanding while remaining lightweight enough for efficient fine-tuning and inference on a single A100 GPU.
-
-Our model is stored in the object store container at CHI@UC, which can later be used for serving and inference. You can find the model [here](https://chi.uc.chameleoncloud.org/project/containers/container/project6_model)
-
-By training on Q&A pairs, the model is adapted to understand project-specific codebases and respond accurately to developer-level technical questions. It also integrates a retrieval-augmented generation (RAG) pipeline, enabling real-time grounding of responses in live documentation or source files. Overall, this architecture provides a scalable and effective solution for building domain-adapted code assistants.
+We fine-tune the LLaMA-3-8B-Instruct model using the llama-factory framework with the CodeQA dataset formatted in Alpaca-style instruction-based JSON. Training is performed on a single A100 GPU, which provides sufficient capacity for efficient fine-tuning. The LLaMA-3-8B architecture strikes a balance between performance and resource efficiency, making it well-suited for understanding and answering developer-level questions about source code. This setup enables the model to generate accurate and context-aware responses based on code-related prompts.
 
 ## 4.2 Train and re-train
 
