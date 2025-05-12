@@ -153,7 +153,7 @@ We selected Meta-LLaMA-3-8B-Instruct as our base model for the following reasons
 - At 8 billion parameters, it achieves a balance between capacity and trainability on a single A100 80GB GPU.
 - It is publicly available and compatible with Hugging Face, allowing for seamless integration into llama-factory.
 
-Since full fine-tuning of such a large model is computationally expensive and memory-intensive, we adopted LoRA with rank 8. We injected LoRA modules into critical projection layers, including attention heads (q_proj, k_proj, v_proj, o_proj) .
+Since full fine-tuning of such a large model is computationally expensive and memory-intensive, we adopted LoRA with rank 8. We injected LoRA modules into critical projection layers, including attention heads (q_proj, k_proj, v_proj, o_proj) . This decrease the training time from 2hours/epoch to 80minutes/epoch compared to default lora settings.
 
 We conducted several controlled experiments to determine the most effective training configuration. Below are the key decisions and the rationale:
 
