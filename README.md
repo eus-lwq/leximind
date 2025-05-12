@@ -228,30 +228,81 @@ We use Ray train to schedule training jobs along with grafana and mlflow for tra
   ```
 
 ## 5.2 Identify requirements
-- latency: as the customer is a newly onboarded developer to a brand new project, latency shouldn’t be too high as the user is expecting a chatbot responding speed. 
-- accuracy: the answer should be basically correct according to the repo
+**1. High-Performance GPU Deployment**
+
+**Target Customer**:  
+Organizations with access to high-end GPU clusters (e.g., NVIDIA A100, V100).  
+
+**Requirements**:  
+- **Low Latency**: Sub-second response times for real-time applications (e.g., chatbots, recommendation systems).  
+- **High Throughput**: Handle thousands of concurrent requests.  
+- **Full Model Deployment**: Support for large-scale models without compression or optimization.  
+- **Infrastructure**: Bare-metal GPU clusters (e.g., `chi@uc`).  
+
+**Example Use Case**:  
+AI-powered customer support for large enterprises.  
+
+**2. Resource-Constrained Edge Deployment**
+
+**Target Customer**:  
+Organizations deploying models on edge devices with limited hardware (e.g., NVIDIA RTX6000).  
+
+**Requirements**:  
+- **Low Resource Usage**: Optimized for minimal memory and compute power.  
+- **Medium to Low Throughput**: Handle thousands of concurrent requests.
+- **Small Model Deployment**: Lightweight models or LoRA adapters for task-specific inference.  
+- **Infrastructure**: Bare-metal GPU resources (e.g., `chi@uc`).  
+
+**Example Use Case**:  
+AI-powered customer support for small to medium size team in enterprise.  
+
+**3. Cloud-Based Virtual Machine Deployment**
+
+**Target Customer**:  
+Organizations using cloud-based virtual machines (e.g., AWS, Azure, GCP) with moderate hardware.  
+
+**Requirements**:  
+- **Scalability**: Auto-scaling support for variable workloads.  
+- **Cost Efficiency**: Optimized deployments to reduce cloud costs.  
+- **Hybrid Models**: Mix of full models and lightweight adapters (e.g., LoRA) based on demand.  
+- **Infrastructure**: Virtual machines with GPUs available on-demand. 
+
+**Example Use Case**:  
+AI-powered customer support for various team size. 
 
 ## 5.3 Model optimizations
-- **Model-Level Optimization: half precision and 8-Bit Quantization with vLLM:**
-- Reduces the model’s numerical precision from FP16/FP32 to half precision, significantly decreasing memory usage and speeding up matrix operations.
-- half precision code: https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/vllm_serving_lora_adapter.sh#L64C1-L65C1
+- **Model-Level Optimization: Half Precision and 8-Bit Quantization with vLLM:**
+   
+   Reduces the model’s numerical precision to half, to accomodate GPU restrictions and reduces memory footprint.
+   ref: https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/vllm_serving_lora_adapter.sh#L64C1-L65C1
 
 - **Effect on Inference:**
-- Lower VRAM consumption, enabling larger batch sizes or larger models to run on the same hardware.
-- Increased throughput with minimal to moderate impact on accuracy, depending on the calibration method.
+   
+   Lower VRAM consumption, enabling larger batch sizes or larger models to run on the same hardware.
+   Increased throughput with minimal to moderate impact on accuracy, depending on the calibration method.
 
 ## 5.4 System optimizations
-- **System-Level Optimization: Batch Inference with vLLM**
-- Processes multiple inference requests simultaneously, improving hardware utilization and reducing average latency per request under concurrent workloads.
-- batch inference code: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py#L52C4-L55C40
-- **Effect on Inference:**
-- Higher throughput (more tokens per second).
-- Lower per-request latency in high-concurrency scenarios due to amortized compute costs.
+
+1. **Using Batch Inference:**
+
+   Processes multiple inference requests simultaneously, improving hardware utilization and reducing average latency per request under concurrent workloads.
+   ref: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py#L52C4-L55C40
+ 
+   **Effect on Inference:**
+
+   Higher throughput (more tokens per second). Lower per-request latency in high-concurrency scenarios due to amortized compute costs.
+
+2. **Serving using LoRA Adapter:**
+
+   To accomodate scenarios that has limits on hardware, we could use smaller model with LoRA adapter to fine-tune the model. 
+   ref: [`Link to Detailed Comparison`](./serving/use-cases/README.md)
 
 ## 5.5 Offline evaluation of model (Offline)
-- offline predict script: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/test/predict.sh
-- offline evaluation on llm output and compare with commercial model: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py
-- test score: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_score.py
+- Offline predict script: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/test/predict.sh
+- Offline evaluation on llm output and compare with commercial model: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py
+- Test Score to evaluate relevance: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_score.py
+
+
 ### Model Evaluation Summary (Prediction Phase)
 During the prediction phase, we assessed the performance of our fine-tuned **LLaMA-based model** using both standard automatic metrics and semantic similarity analysis. The results demonstrate promising generalization and meaningful language understanding, with clear potential for further refinement.
 
