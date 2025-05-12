@@ -14,6 +14,7 @@ A question answering platform designed to answer junior developers' coding, gene
 | Xing Fang | xf757 | xf757@nyu.edu | Model Serving |
 
 ## 1.1 Value Proposition
+<img width="1144" alt="Screenshot 2025-05-11 at 11 32 26 PM" src="https://github.com/user-attachments/assets/462ecb8a-ab26-46e9-9016-370795e70725" />
 
 - **Product**: A question answering platform that helps junior developers with coding, general, and onboarding questions to reduce the learning curve
 - **Target Customer**: Junior developers newly onboarded to open source projects who want to contribute
