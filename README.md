@@ -177,4 +177,47 @@ To train LLaMA-3-8B-Instruct model, we applied several strategies to decrease th
 - output:answer from llm model
 <img width="1096" alt="Screenshot 2025-05-11 at 8 11 35 PM" src="https://github.com/user-attachments/assets/9bedb0b4-a48e-4fa4-884e-e0fe7a1fc303" />
 
-## 5.2 
+## 5.2 Identify requirements
+- latency: as the customer is a newly onboarded developer to a brand new project, latency shouldn’t be too high as the user is expecting a chatbot responding speed. 
+- accuracy: the answer should be basically correct according to the repo
+
+## 5.3 Model optimizations
+- **Model-Level Optimization: half precision and 8-Bit Quantization with vLLM:**
+- Reduces the model’s numerical precision from FP16/FP32 to half precision, significantly decreasing memory usage and speeding up matrix operations.
+- half precision code: https://github.com/eus-lwq/leximind/blob/serving/serving/scripts/vllm_serving_lora_adapter.sh#L64C1-L65C1
+
+- **Effect on Inference:**
+- Lower VRAM consumption, enabling larger batch sizes or larger models to run on the same hardware.
+- Increased throughput with minimal to moderate impact on accuracy, depending on the calibration method.
+
+## 5.4 System optimizations
+- **System-Level Optimization: Batch Inference with vLLM**
+- Processes multiple inference requests simultaneously, improving hardware utilization and reducing average latency per request under concurrent workloads.
+- batch inference code: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py#L52C4-L55C40
+- **Effect on Inference:**
+- Higher throughput (more tokens per second).
+- Lower per-request latency in high-concurrency scenarios due to amortized compute costs.
+
+## 5.5 Offline evaluation of model (Offline)
+- offline evaluation on llm output and compare with commercial model: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py
+- test score: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_score.py
+
+## 5.6 Load test in staging (Online)
+- load test on 10 request per sec: https://github.com/eus-lwq/leximind/blob/serving/optimization/load_test/test_simple_load_test.py
+
+## 5.7 Define a business-specific evaluation
+The effectiveness of our AI assistant can be evaluated based on its impact on developer productivity and repository contributions.
+- **Metrics:**
+- **Accepted PRs (6 months):** Measures the number of successfully merged pull requests, indicating improved developer output.
+- **Time to First Contribution:** Tracks how quickly new developers make their first accepted PR, reflecting faster onboarding.
+- **Search-to-PR Conversion Rate:** Measures how often developers using the assistant proceed to make successful contributions.
+
+
+## 5.8 (optional difficult point) Multiple options for serving
+- CPU inference with transformer: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/inference/infer_no_vllm.py
+- GPU inference with vLLM: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/inference/infer.py
+allow inference in CPU with transformer and GPU with vLLM/transformer: https://github.com/eus-lwq/leximind/blob/dev_eric/infer_pipeline/docker-compose.cpu.yml
+
+
+
+
