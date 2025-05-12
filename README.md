@@ -214,6 +214,28 @@ We use Ray train to schedule training jobs along with grafana and mlflow for tra
 
 ![image](https://github.com/user-attachments/assets/94c29b6a-c41c-4664-ac61-3841a5dcd4ff)
 
+## 4.6 Model Evaluation Summary (Prediction Phase)
+During the prediction phase, we assessed the performance of our fine-tuned **LLaMA-based model** using both standard automatic metrics and semantic similarity analysis. The results demonstrate promising generalization and meaningful language understanding, with clear potential for further refinement.
+
+#### 📈 Automatic Generation Metrics
+- **BLEU-4:** 26.03  
+  *A solid score that reflects the model’s ability to generate n-gram overlaps with reference outputs. While there's space for improvement, this indicates the model often captures key phrases or structure correctly.*
+
+- **ROUGE Scores:**
+  - **ROUGE-1:** 38.61  
+  - **ROUGE-2:** 16.17  
+  - **ROUGE-L:** 36.58  
+  *These scores show that the model retains a strong ability to reflect relevant content (unigrams) and captures some phrase-level structure (ROUGE-L). The moderate ROUGE-2 suggests that fluency and phrase continuity are being learned, but could benefit from further optimization.*
+
+### 🧠 Semantic Similarity (OpenAI Embeddings)
+- **Average Embedding Similarity:** 0.559 (using `text-embedding-3-small`)  
+  *This similarity score indicates that the model’s predictions are, on average, semantically aligned with the ground truth. The outputs tend to convey the correct intent, even in cases where exact wording differs—suggesting effective instruction comprehension.*
+
+### ⚙️ Runtime and Throughput
+- **Throughput:** 1.10 samples/sec | 0.143 steps/sec  
+- **Total Runtime:** ~90 seconds for 100 samples
+
+
 ## 5.1 Serving from an API point
 - **Setup**: The API endpoint is implemented using FastAPI, and it provides a `/ask` endpoint for querying the model.
     User could also access the model without RAG through vLLM's OpenAI compatible server.
@@ -306,28 +328,6 @@ AI-powered customer support for various team size.
 - Offline predict script: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/test/predict.sh
 - Offline evaluation on llm output and compare with commercial model: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py
 - Test Score to evaluate relevance: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_score.py
-
-
-### Model Evaluation Summary (Prediction Phase)
-During the prediction phase, we assessed the performance of our fine-tuned **LLaMA-based model** using both standard automatic metrics and semantic similarity analysis. The results demonstrate promising generalization and meaningful language understanding, with clear potential for further refinement.
-
-#### 📈 Automatic Generation Metrics
-- **BLEU-4:** 26.03  
-  *A solid score that reflects the model’s ability to generate n-gram overlaps with reference outputs. While there's space for improvement, this indicates the model often captures key phrases or structure correctly.*
-
-- **ROUGE Scores:**
-  - **ROUGE-1:** 38.61  
-  - **ROUGE-2:** 16.17  
-  - **ROUGE-L:** 36.58  
-  *These scores show that the model retains a strong ability to reflect relevant content (unigrams) and captures some phrase-level structure (ROUGE-L). The moderate ROUGE-2 suggests that fluency and phrase continuity are being learned, but could benefit from further optimization.*
-
-### 🧠 Semantic Similarity (OpenAI Embeddings)
-- **Average Embedding Similarity:** 0.559 (using `text-embedding-3-small`)  
-  *This similarity score indicates that the model’s predictions are, on average, semantically aligned with the ground truth. The outputs tend to convey the correct intent, even in cases where exact wording differs—suggesting effective instruction comprehension.*
-
-### ⚙️ Runtime and Throughput
-- **Throughput:** 1.10 samples/sec | 0.143 steps/sec  
-- **Total Runtime:** ~90 seconds for 100 samples
 
 ## 5.6 Load test in staging (Online)
 - load test on 10 request per sec: https://github.com/eus-lwq/leximind/blob/serving/optimization/load_test/test_simple_load_test.py
