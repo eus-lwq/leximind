@@ -163,6 +163,9 @@ We conducted several controlled experiments to determine the most effective trai
 - **Learning rate**: After testing several values in the range of 1e-4 to 1e-5, we selected 5e-5, which provided fast convergence without oscillations. We used a linear learning rate scheduler with warmup ratio 0.03 and gradient clipping (max_grad_norm=0.3).
 - **Epochs**: We trained for 1.5 epochs on a 60,000-sample dataset (QACode), balancing underfitting risk and cost.
 
+ref: https://github.com/eus-lwq/leximind/blob/main/train/llama-factory/train.sh
+ 
+
 ## 4.4 Model Optimizations for training
 
 To train LLaMA-3-8B-Instruct model, we applied several strategies to decrease the training time and try to make a balance between model performance and training time.
