@@ -35,7 +35,10 @@ jobs:
       
       - name: Terraform Init
         working-directory: monitoring
-        run: terraform init
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform init
 
       - name: Terraform Validate
         working-directory: monitoring
