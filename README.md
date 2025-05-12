@@ -1,4 +1,10 @@
 # Leximind
+<p align="center">
+  <a href="https://youtu.be/vnXm0_oZ_nY">
+    <img src="https://img.youtube.com/vi/vnXm0_oZ_nY/0.jpg" alt="Watch the Demo"/>
+  </a>
+</p>
+
 
 A question answering platform designed to answer junior developers' coding, general, and onboarding questions to reduce learning time and learning curve when contributing to open source projects.
 
