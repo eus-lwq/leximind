@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - serving
+    paths:
+      - "monitoring/**"
   workflow_dispatch:  # Allows the workflow to be triggered manually
 
 jobs:

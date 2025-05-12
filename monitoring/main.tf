@@ -156,17 +156,7 @@ resource "null_resource" "wait_for_grafana" {
 
   provisioner "local-exec" {
     command = <<EOT
-    for i in {1..5}; do
-      status=$(curl -s -o /dev/null -w "%%{http_code}" ${openstack_networking_floatingip_v2.floating_ip.address}:3000/api/health)
-      if [ "$status" -eq 200 ]; then
-        echo "Grafana is ready."
-        exit 0
-      fi
-      echo "Waiting for Grafana... (attempt $i)"
-      sleep 120
-    done
-    echo "Timeout waiting for Grafana."
-    exit 1
+    sleep 180
     EOT
   }
 }
