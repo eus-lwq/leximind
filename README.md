@@ -170,3 +170,11 @@ To train LLaMA-3-8B-Instruct model, we applied several strategies to decrease th
    - --gradient_accumulation_steps=8
    - With accumulation: Stable convergence in 80 min
    - Without accumulation: need higher batch size and the model cant converge, otherwise needs 8 hours to train one epoch
+
+## 5.1 Serving from an API point
+- serving endpoint: vLLM serving point + Fast API
+- input: user input query. e.g question to the repository
+- output:answer from llm model
+<img width="1096" alt="Screenshot 2025-05-11 at 8 11 35 PM" src="https://github.com/user-attachments/assets/9bedb0b4-a48e-4fa4-884e-e0fe7a1fc303" />
+
+## 5.2 
