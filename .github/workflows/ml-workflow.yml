@@ -1,0 +1,19 @@
+name: Hello World Every 30 Minutes
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+
+  workflow_dispatch:
+
+jobs:
+  say-hello:
+    runs-on: [self-hosted, x64]
+    steps:
+      - name: Print Hello World and Save Locally
+        run: |
+          log_file="$HOME/hello-world-logs.txt"
+          echo "===================" >> "$log_file"
+          echo "Hello World at $(date)" >> "$log_file"
+          echo "===================" >> "$log_file"
+          cat "$log_file"   # also print it to Actions logs
