@@ -163,7 +163,7 @@ resource "null_resource" "wait_for_grafana" {
         exit 0
       fi
       echo "Waiting for Grafana... (attempt $i)"
-      sleep 30
+      sleep 120
     done
     echo "Timeout waiting for Grafana."
     exit 1
