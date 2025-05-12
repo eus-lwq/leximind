@@ -44,11 +44,11 @@ resource "openstack_networking_secgroup_rule_v2" "kvm_allow_fastapi" {
 resource "openstack_compute_instance_v2" "kvm_vm" {
   count             = local.create_kvm_resources
   provider          = openstack.kvm
-  name              = "kvm-serving-vm-${random_string.suffix.result}"
+  name              = "kvm-serving-vm-project6-${random_string.suffix.result}"
   image_name        = "CC-Ubuntu24.04"
   flavor_name       = "m1.medium"
   availability_zone = "nova"
-  key_pair          = "kvm-serving-keypair-${random_string.suffix.result}"
+  key_pair          = "kvm-serving-keypair-project6-${random_string.suffix.result}"
 
   security_groups = [openstack_networking_secgroup_v2.kvm_security_group[0].name, "default"]
 
@@ -60,7 +60,7 @@ resource "openstack_compute_instance_v2" "kvm_vm" {
 resource "openstack_compute_keypair_v2" "kvm_keypair" {
   count       = local.create_kvm_resources
   provider    = openstack.kvm
-  name        = "kvm-serving-keypair-${random_string.suffix.result}"
+  name        = "kvm-serving-keypair-project6-${random_string.suffix.result}"
   public_key  = file(var.public_key_path)
 }
 

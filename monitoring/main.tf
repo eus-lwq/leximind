@@ -69,11 +69,11 @@ resource "openstack_networking_secgroup_rule_v2" "allow_8080" {
 }
 
 resource "openstack_compute_instance_v2" "vm" {
-  name            = "monitoring-vm-${random_string.suffix.result}"
+  name            = "monitoring-vm-project6-${random_string.suffix.result}"
   image_name      = "CC-Ubuntu24.04"
   flavor_name     = "m1.medium"
   availability_zone = "nova"
-  key_pair        = "monitoring-keypair-${random_string.suffix.result}"
+  key_pair        = "monitoring-keypair-project6-${random_string.suffix.result}"
 
   security_groups = [openstack_networking_secgroup_v2.security_group.name, "default"]
 
@@ -83,7 +83,7 @@ resource "openstack_compute_instance_v2" "vm" {
 }
 
 resource "openstack_compute_keypair_v2" "keypair" {
-  name       = "monitoring-keypair-${random_string.suffix.result}"
+  name       = "monitoring-keypair-project6-${random_string.suffix.result}"
   public_key = file(var.public_key_path)
 }
 

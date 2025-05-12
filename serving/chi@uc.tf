@@ -56,10 +56,10 @@ resource "openstack_networking_secgroup_rule_v2" "chi_allow_simpleui" {
 resource "openstack_compute_instance_v2" "chi_baremetal" {
   count             = local.create_chi_resources
   provider          = openstack.chi
-  name              = "chi-serving-vm-${random_string.suffix.result}"
+  name              = "chi-serving-vm-project6-${random_string.suffix.result}"
   image_name        = "CC-Ubuntu24.04-CUDA"
   flavor_name       = "baremetal"
-  key_pair          = "chi-serving-keypair-${random_string.suffix.result}"
+  key_pair          = "chi-serving-keypair-project6-${random_string.suffix.result}"
   security_groups   = [openstack_networking_secgroup_v2.chi_security_group[0].name]
 
   network {
@@ -75,7 +75,7 @@ resource "openstack_compute_instance_v2" "chi_baremetal" {
 resource "openstack_compute_keypair_v2" "chi_keypair" {
   count       = local.create_chi_resources
   provider    = openstack.chi
-  name        = "chi-serving-keypair-${random_string.suffix.result}"
+  name        = "chi-serving-keypair-project6-${random_string.suffix.result}"
   public_key  = file(var.public_key_path)
 }
 

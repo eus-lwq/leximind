@@ -1,0 +1,47 @@
+name: Deploy monitoring
+on:
+  workflow_dispatch:  # Allows the workflow to be triggered manually
+
+jobs:
+  deploy_monitoring:
+    runs-on: [self-hosted, x64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH keys
+        run: |
+          mkdir -p monitoring
+          echo "${{ secrets.id_rsa }}" > monitoring/id_rsa
+          echo "${{ secrets.id_rsa_pub }}" > monitoring/id_rsa.pub
+          chmod 600 monitoring/id_rsa
+          chmod 644 monitoring/id_rsa.pub
+
+      - name: Setup OpenStack configuration
+        run: |
+          mkdir -p ~/.config/openstack
+          echo "${{ secrets.CLOUDS_YAML_COMBINED }}" > ~/.config/openstack/clouds.yaml
+          chmod 600 ~/.config/openstack/clouds.yaml
+
+      - name: Terraform Version
+        working-directory: monitoring
+        run: | 
+          source ~/miniconda/etc/profile.d/conda.sh
+          conda activate leximind
+          terraform version 
+      
+      - name: Terraform Init
+        working-directory: monitoring
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: monitoring
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: monitoring
+        run: terraform plan -var-file ./use-cases/fastapi.tfvars | grep -E "Plan:|No changes|Error|#"
+
+      - name: Terraform Apply
+        working-directory: monitoring
+        run: terraform apply -var-file ./use-cases/fastapi.tfvars -auto-approve
