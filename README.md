@@ -91,7 +91,8 @@ For fine-tuning Llama 3.1 using LLaMa factory, we transform the data to the alpa
 
 ## 3.3 Data Pipeline
 
-### ETL Steps:
+
+## 3.3.1 ETL Steps:
 
 1. **Extract**:
    - CodeQA dataset: Extracted from Google Drive
@@ -108,6 +109,14 @@ For fine-tuning Llama 3.1 using LLaMa factory, we transform the data to the alpa
 3. **Load**:
    - Load transformed datasets into object store data_project6
    - Files: data/train.json (150k examples) and data/test.json (19k examples)
+
+Here is the Docker compose file that implements this: [ETL CodeQA](https://github.com/eus-lwq/leximind/blob/data/data/data_pipeline/docker-compose-etl.yaml)
+
+##3.3.2 RAG Pipeline:
+
+The RAG pipeline converts the GitHub repository documentation into vector embeddings and stores them in block storage. This data is later used as context during inference while querying the LLM. 
+
+Here is the folder that implements this: [RAG pipeline](https://github.com/eus-lwq/leximind/tree/data/data/rag_pipeline)
 
 ### Data Division:
 - 80% training, 20% testing
@@ -171,29 +180,39 @@ To train LLaMA-3-8B-Instruct model, we applied several strategies to decrease th
    - With accumulation: Stable convergence in 80 min
    - Without accumulation: need higher batch size and the model cant converge, otherwise needs 8 hours to train one epoch
 
+
+
+## 4.5 Experiment tracking 
+We use Ray train to schedule training jobs along with grafana and mlflow for tracking the various experiments.
+
+1. [Ray training monitoring compose file](https://github.com/eus-lwq/leximind/blob/dev_infra/docker-compose.yaml)
+
+![image](https://github.com/user-attachments/assets/b6034969-0760-40f5-bdcd-16c9430fa03f)
+
+2. [Ray Submit file](https://github.com/eus-lwq/leximind/blob/dev_infra/ray_scripts/ray_submit.py)
+
+![image](https://github.com/user-attachments/assets/7af8514a-4aed-4f91-a07d-7eca6842fc47)
+
+3. Ray Overview
+
+![image](https://github.com/user-attachments/assets/d990710c-e74f-4fd9-95d7-e3dcfe7691c7)
+
+4. Grafana Monitoring dashboard
+
+![image](https://github.com/user-attachments/assets/303872ed-fa6d-4a25-bf5c-5c46ca204bde)
+
+5. MLflow experiment tracking screenshot
+
+![image](https://github.com/user-attachments/assets/f1ce6497-e59f-4399-88bb-e91db740dbdd)
+
+![image](https://github.com/user-attachments/assets/94c29b6a-c41c-4664-ac61-3841a5dcd4ff)
+
 ## 5.1 Serving from an API point
 - serving endpoint: vLLM serving point + Fast API
 - input: user input query. e.g question to the repository
 - output:answer from llm model
 <img width="1096" alt="Screenshot 2025-05-11 at 8 11 35 PM" src="https://github.com/user-attachments/assets/9bedb0b4-a48e-4fa4-884e-e0fe7a1fc303" />
 
-## 4.5 Experiment tracking 
-We use Ray train to schedule training jobs along with grafana and mlflow for tracking the various experiments.
-1. [Ray training monitoring compose file](https://github.com/eus-lwq/leximind/blob/dev_infra/docker-compose.yaml)
-![image](https://github.com/user-attachments/assets/b6034969-0760-40f5-bdcd-16c9430fa03f)
+## 5.2 Identify Requirements
 
-2. [Ray Submit file](https://github.com/eus-lwq/leximind/blob/dev_infra/ray_scripts/ray_submit.py)
-![image](https://github.com/user-attachments/assets/7af8514a-4aed-4f91-a07d-7eca6842fc47)
 
-3. Ray Overview
-![image](https://github.com/user-attachments/assets/d990710c-e74f-4fd9-95d7-e3dcfe7691c7)
-
-4. Grafana Monitoring dashboard
-![image](https://github.com/user-attachments/assets/303872ed-fa6d-4a25-bf5c-5c46ca204bde)
-
-5. MLflow experiment tracking screenshot
-![image](https://github.com/user-attachments/assets/f1ce6497-e59f-4399-88bb-e91db740dbdd)
-
-![image](https://github.com/user-attachments/assets/94c29b6a-c41c-4664-ac61-3841a5dcd4ff)
-
-## 5.2 
