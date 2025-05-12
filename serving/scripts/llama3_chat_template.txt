@@ -1,0 +1,10 @@
+{{ bos_token }}{% for message in messages %}
+{% if message['role'] == 'user' -%}
+<|user|>
+{{ message['content'].strip() }}<|end|>
+{% elif message['role'] == 'assistant' -%}
+<|assistant|>
+{{ message['content'].strip() }}<|end|>
+{% endif %}
+{% endfor %}
+<|assistant|>

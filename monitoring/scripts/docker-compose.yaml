@@ -1,0 +1,8 @@
+# docker-compose.yaml
+version: "3"
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000" # the default port used by Grafana
