@@ -3,7 +3,7 @@
 
 private_key_path = "id_rsa" # Update with the actual path to your private key file
 public_key_path  = "id_rsa.pub" # Update with the actual path to your public key file
-reservation_id = "15bffe50-23e0-4599-b8fb-22661c744505" # Update if needed
+reservation_id = "8bbded35-8abc-41b5-ba87-a3d6725b346f" # Update if needed
 model_name = "meta-llama/Llama-3.2-1B-Instruct" # Update with the desired model path
 lora_adapter_path = "model/lora_adapter" # Update with the desired LoRA adapter path
 vol_uuid = "0189c2f5-7a72-4738-a5b4-3741510dc472" # Update with the correct volume UUID
