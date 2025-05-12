@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - serving
+    paths:
+      - "serving/**"
   workflow_dispatch:  # Allows the workflow to be triggered manually
 
 jobs:
@@ -57,11 +59,11 @@ jobs:
         run: | 
           source ~/miniconda/etc/profile.d/conda.sh
           conda activate leximind
-          terraform plan -var-file ./use-cases/fastapi.tfvars | grep -E "Plan:|No changes|Error|#"
+          terraform plan -var-file ./use-cases/fastapi+model.tfvars | grep -E "Plan:|No changes|Error|#"
 
       - name: Terraform Apply
         working-directory: serving
         run: | 
           source ~/miniconda/etc/profile.d/conda.sh
           conda activate leximind
-          terraform apply -var-file ./use-cases/fastapi.tfvars -auto-approve
+          terraform apply -var-file ./use-cases/fastapi+model.tfvars -auto-approve
