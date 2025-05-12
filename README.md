@@ -148,6 +148,8 @@ You can find the re-training details [here](https://github.com/eus-lwq/leximind/
 
 We use MLflow to monitor and log the entire training workflow, including both initial training and retraining runs. Each run is recorded with detailed metadata such as training configuration, loss curves, and run names, allowing us to track model performance over time.
 
+![image](https://github.com/user-attachments/assets/f1ce6497-e59f-4399-88bb-e91db740dbdd)
+
 ## 4.3 Justification of Modeling Choices
 
 We selected Meta-LLaMA-3-8B-Instruct as our base model for the following reasons:
@@ -210,11 +212,6 @@ We use Ray train to schedule training jobs along with grafana and mlflow for tra
 
 ![image](https://github.com/user-attachments/assets/303872ed-fa6d-4a25-bf5c-5c46ca204bde)
 
-5. MLflow experiment tracking screenshot
-
-![image](https://github.com/user-attachments/assets/f1ce6497-e59f-4399-88bb-e91db740dbdd)
-
-![image](https://github.com/user-attachments/assets/94c29b6a-c41c-4664-ac61-3841a5dcd4ff)
 
 ## 4.6 Model Evaluation Summary (Prediction Phase)
 During the prediction phase, we assessed the performance of our fine-tuned **LLaMA-based model** using both standard automatic metrics and semantic similarity analysis. The results demonstrate promising generalization and meaningful language understanding, with clear potential for further refinement.
