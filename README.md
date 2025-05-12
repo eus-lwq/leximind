@@ -145,7 +145,7 @@ The base model is Meta-LLaMA-3-8B-Instruct, an 8B-parameter decoder-only transfo
 
 You can find the training details [here](https://github.com/eus-lwq/leximind/blob/dev_eric/pipeline/train_pipeline.md)
 
-We retrain with new production data by collecting user feedback in a separate file (feedback_data/pending.jsonl). A scheduled pipeline checks this file daily using a cron job. If more than 1000 new samples are detected, the pipeline automatically merges them into the training dataset and launches a new training run using train.sh.
+We collect user feedback via MinIO and periodically merge new feedback data into the training set. A weekly scheduled job on a self-hosted runner retrains the model using the updated data to ensure it remains aligned with recent user behavior.
 
 We use MLflow to monitor and log the entire training workflow, including both initial training and retraining runs. Each run is recorded with detailed metadata such as training configuration, loss curves, and run names, allowing us to track model performance over time.
 
