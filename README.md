@@ -239,6 +239,7 @@ We use Ray train to schedule training jobs along with grafana and mlflow for tra
 - Lower per-request latency in high-concurrency scenarios due to amortized compute costs.
 
 ## 5.5 Offline evaluation of model (Offline)
+- offline predict script: https://github.com/eus-lwq/leximind/blob/dev_eric/train/llama-factory/test/predict.sh
 - offline evaluation on llm output and compare with commercial model: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_language_model_comparison.py
 - test score: https://github.com/eus-lwq/leximind/blob/serving/optimization/perform_offline_evaluation_against_score_endpoint/test_score.py
 ### Model Evaluation Summary (Prediction Phase)
