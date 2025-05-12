@@ -1,4 +1,6 @@
 # Leximind
+
+Click on the graph to access the youtube video!
 <p align="center">
   <a href="https://youtu.be/vnXm0_oZ_nY">
     <img src="https://img.youtube.com/vi/vnXm0_oZ_nY/0.jpg" alt="Watch the Demo"/>
