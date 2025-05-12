@@ -1,7 +1,7 @@
 resource "openstack_networking_secgroup_v2" "kvm_security_group" {
   count       = local.create_kvm_resources
   provider    = openstack.kvm
-  name        = "kvm-serving-security-group"
+  name        = "kvm-serving-secgroup-project6-${random_string.suffix.result}"
   description = "Security group for allowing specific inbound traffic"
 }
 

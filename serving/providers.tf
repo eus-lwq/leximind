@@ -8,7 +8,7 @@ terraform {
       }
     }
   backend "local" {
-    path = "/mnt/ece9183/project/terraform-state/terraform.tfstate"
+    path = "/mnt/ece9183/project/terraform-state/serving/terraform.tfstate"
   }
 }
 

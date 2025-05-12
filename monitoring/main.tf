@@ -7,6 +7,9 @@ terraform {
         version = "~> 1.53.0"
       }
     }
+  backend "local" {
+    path = "/mnt/ece9183/project/terraform-state/monitoring/terraform.tfstate"
+  }
 }
 
 provider "openstack" {
@@ -150,16 +153,17 @@ resource "null_resource" "setup_monitoring" {
 
 resource "null_resource" "wait_for_grafana" {
   depends_on = [null_resource.setup_monitoring]
+
   provisioner "local-exec" {
     command = <<EOT
-    for i in {1..30}; do
+    for i in {1..5}; do
       status=$(curl -s -o /dev/null -w "%%{http_code}" ${openstack_networking_floatingip_v2.floating_ip.address}:3000/api/health)
       if [ "$status" -eq 200 ]; then
         echo "Grafana is ready."
         exit 0
       fi
       echo "Waiting for Grafana... (attempt $i)"
-      sleep 5
+      sleep 30
     done
     echo "Timeout waiting for Grafana."
     exit 1
