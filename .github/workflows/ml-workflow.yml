@@ -1,9 +1,6 @@
 name: Hello World Every 30 Minutes
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
-
   workflow_dispatch:
 
 jobs:
