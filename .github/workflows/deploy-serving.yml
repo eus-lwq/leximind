@@ -1,5 +1,8 @@
 name: Deploy Serving
 on:
+  push:
+    branches:
+      - serving
   workflow_dispatch:  # Allows the workflow to be triggered manually
 
 jobs:
