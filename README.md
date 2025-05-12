@@ -305,7 +305,13 @@ buckets in MiniO:
 <img width="904" alt="Screenshot 2025-05-11 at 9 27 33 PM" src="https://github.com/user-attachments/assets/78c96d38-8ff7-4991-8a09-b6c3ad29f21f" />
 Code: https://github.com/eus-lwq/leximind/tree/feedback_loop/label_pipeline
 
-## 9.1 further thoughts and lesson learned
+## 9.1 CICD
+Automatically deploy, offline-eval, retrain, deploy
+triggers re-training: weekly every sunday
+redeploying: after retrained new model and stored to obj store we will run the deploy pipeline again
+retrain pipeline: https://github.com/eus-lwq/leximind/blob/main/.github/workflows/retrain.yml
+
+## 10.1 further thoughts and lesson learned
 - challenge 1: evaluation on llm result when we extracted low quality github issues, and using documentation to rag probably not enough to solve some issue
 - thoughts: probably use stackoverflow + slack channel Q&A + discord Q&A + twitter + youtube channel in the future
 
