@@ -130,10 +130,10 @@ Here is the folder that implements this: [RAG pipeline](https://github.com/eus-l
 - Ensuring no mixing of testing/training data
 
 ## 4.1 Modeling
+<img width="1253" alt="Screenshot 2025-05-11 at 11 59 08 PM" src="https://github.com/user-attachments/assets/4ec65d71-62ff-4d7d-8fc4-894266d68c5e" />
 We fine-tune the LLaMA-3-8B-Instruct model using the llama-factory framework with the CodeQA dataset formatted in Alpaca-style instruction-based JSON. Training is performed on a single A100 GPU, which provides sufficient capacity for efficient fine-tuning. The LLaMA-3-8B architecture strikes a balance between performance and resource efficiency, making it well-suited for understanding and answering developer-level questions about source code. This setup enables the model to generate accurate and context-aware responses based on code-related prompts.
 
 ## 4.2 Train and re-train
-
 In our project, we train and retrain a large language model using a custom instruction-following dataset derived from the CodeQA benchmark. CodeQA contains question–answer pairs grounded in source code written in Python and Java. We converted these examples into the Alpaca format (instruction–input–output) to support instruction tuning. The resulting dataset, includes approximately 60,000 question–answer pairs, and enables the model to learn how to answer natural language questions about real-world code functions, files, and APIs.
 
 The base model is Meta-LLaMA-3-8B-Instruct, an 8B-parameter decoder-only transformer released by Meta. We fine-tune this model using LoRA for parameter-efficient training, and we use bf16 mixed-precision with gradient accumulation to fit the training process on a single A100 80GB GPU (compute-gigaio node) on Chameleon Cloud.
